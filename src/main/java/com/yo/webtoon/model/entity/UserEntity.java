@@ -1,5 +1,7 @@
 package com.yo.webtoon.model.entity;
 
+import com.yo.webtoon.model.constant.Role;
+import com.yo.webtoon.model.dto.UserDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
@@ -58,5 +60,15 @@ public class UserEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return deleteDate == null;
+    }
+
+    public static UserEntity toEntity(UserDto.SignUp userDto) {
+        return UserEntity.builder()
+            .userId(userDto.getUserId())
+            .password(userDto.getPassword())
+            .userName(userDto.getUserName())
+            .adultCertificationDate((userDto.isAdult()) ? LocalDateTime.now() : null)
+            .role((userDto.getRole() == null) ? Role.ROLE_GENERAL.name() : userDto.getRole())
+            .build();
     }
 }
