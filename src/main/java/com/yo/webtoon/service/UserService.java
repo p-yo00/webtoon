@@ -18,16 +18,16 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserEntity loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findById(username)
-            .orElseThrow(() -> new UsernameNotFoundException("User ID Not found -> " + username));
+    public UserEntity loadUserByUsername(String userId) throws UsernameNotFoundException {
+        return userRepository.findByUserId(userId)
+            .orElseThrow(() -> new UsernameNotFoundException("User ID Not found -> " + userId));
     }
 
     /**
      * 회원가입 :: userId 중복체크 후, userEntity에 추가한다.
      */
     public void signUp(UserDto.SignUp signUpInfo) {
-        if (userRepository.existsById(signUpInfo.getUserId())) {
+        if (userRepository.existsByUserId(signUpInfo.getUserId())) {
             throw new RuntimeException("already exists ID -> " + signUpInfo.getUserId());
         }
 
@@ -41,13 +41,13 @@ public class UserService implements UserDetailsService {
      * 아이디/비밀번호 검증 :: 로그인을 위해 일치하는 아이디, 비밀번호가 있는지 검증한 후, 아이디와 권한을 리턴한다.
      */
     public UserDto.Authorization authenticate(UserDto.Login loginInfo) {
-        UserEntity userEntity = userRepository.findById(loginInfo.getUserId())
+        UserEntity userEntity = userRepository.findByUserId(loginInfo.getUserId())
             .orElseThrow(() -> new RuntimeException("failed login"));
 
         if (!passwordEncoder.matches(loginInfo.getPassword(), userEntity.getPassword())) {
             throw new RuntimeException("failed login");
         }
 
-        return new Authorization(userEntity.getUserId(), userEntity.getRole());
+        return new Authorization(userEntity.getUserId(), userEntity.getRole().name());
     }
 }

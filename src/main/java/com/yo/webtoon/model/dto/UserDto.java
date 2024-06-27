@@ -3,6 +3,7 @@ package com.yo.webtoon.model.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,9 @@ public class UserDto {
 
     @Getter
     @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class SignUp {
 
         @NotBlank(message = "아이디를 입력해주세요.")
@@ -19,12 +23,15 @@ public class UserDto {
         private String password;
         @NotBlank(message = "이름을 입력해주세요.")
         private String userName;
-        private boolean isAdult;
+        private boolean adult;
         private String role;
     }
 
     @Getter
     @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Login {
 
         @NotBlank(message = "아이디를 입력해주세요.")
