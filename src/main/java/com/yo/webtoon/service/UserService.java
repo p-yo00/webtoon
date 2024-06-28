@@ -1,10 +1,13 @@
 package com.yo.webtoon.service;
 
+import com.yo.webtoon.exception.WebtoonException;
+import com.yo.webtoon.model.constant.ErrorCode;
 import com.yo.webtoon.model.dto.UserDto;
 import com.yo.webtoon.model.dto.UserDto.Authorization;
 import com.yo.webtoon.model.entity.UserEntity;
 import com.yo.webtoon.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +23,8 @@ public class UserService implements UserDetailsService {
     @Override
     public UserEntity loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findById(username)
-            .orElseThrow(() -> new UsernameNotFoundException("User ID Not found -> " + username));
+            .orElseThrow(
+                () -> new WebtoonException(ErrorCode.USER_NOT_FOUND, HttpStatus.BAD_REQUEST));
     }
 
     /**
@@ -28,7 +32,7 @@ public class UserService implements UserDetailsService {
      */
     public void signUp(UserDto.SignUp signUpInfo) {
         if (userRepository.existsById(signUpInfo.getUserId())) {
-            throw new RuntimeException("already exists ID -> " + signUpInfo.getUserId());
+            throw new WebtoonException(ErrorCode.ALREADY_EXIST_USER_ID, HttpStatus.BAD_REQUEST);
         }
 
         UserEntity userEntity = UserEntity.toEntity(signUpInfo);
@@ -42,10 +46,11 @@ public class UserService implements UserDetailsService {
      */
     public UserDto.Authorization authenticate(UserDto.Login loginInfo) {
         UserEntity userEntity = userRepository.findById(loginInfo.getUserId())
-            .orElseThrow(() -> new RuntimeException("failed login"));
+            .orElseThrow(
+                () -> new WebtoonException(ErrorCode.FAILED_LOGIN, HttpStatus.BAD_REQUEST));
 
         if (!passwordEncoder.matches(loginInfo.getPassword(), userEntity.getPassword())) {
-            throw new RuntimeException("failed login");
+            throw new WebtoonException(ErrorCode.FAILED_LOGIN, HttpStatus.BAD_REQUEST);
         }
 
         return new Authorization(userEntity.getUserId(), userEntity.getRole());
