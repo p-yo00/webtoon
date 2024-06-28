@@ -1,14 +1,20 @@
 package com.yo.webtoon.model.dto;
 
+import com.yo.webtoon.model.constant.SuccessCode;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 /**
- * 따로 반환값이 없는 API의 성공 시의 응답을 담는 객체
+ * 요청의 성공 응답을 담는 객체
  */
 @AllArgsConstructor
+@Builder
 @Getter
 public class SuccessResponse {
 
-    String message;
+    private SuccessCode successCode;
+    private HttpStatus httpStatus;
+    private String message;
 }
