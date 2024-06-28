@@ -1,5 +1,6 @@
 package com.yo.webtoon.model.dto;
 
+import com.yo.webtoon.model.annotation.ValidRole;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ public class UserDto {
         @NotBlank(message = "이름을 입력해주세요.")
         private String userName;
         private boolean adult;
+        @ValidRole
         private String role;
     }
 
