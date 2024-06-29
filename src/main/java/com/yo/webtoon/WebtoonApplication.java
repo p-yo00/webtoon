@@ -1,4 +1,4 @@
-package java.com.webtoon;
+package com.yo.webtoon;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
