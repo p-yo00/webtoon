@@ -4,6 +4,7 @@ import com.yo.webtoon.model.annotation.ValidRole;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,9 @@ public class UserDto {
 
     @Getter
     @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class SignUp {
 
         @NotBlank(message = "아이디를 입력해주세요.")
@@ -27,6 +31,9 @@ public class UserDto {
 
     @Getter
     @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Login {
 
         @NotBlank(message = "아이디를 입력해주세요.")

@@ -1,13 +1,10 @@
 package com.yo.webtoon.service;
 
-import com.yo.webtoon.exception.WebtoonException;
-import com.yo.webtoon.model.constant.ErrorCode;
 import com.yo.webtoon.model.dto.UserDto;
 import com.yo.webtoon.model.dto.UserDto.Authorization;
 import com.yo.webtoon.model.entity.UserEntity;
 import com.yo.webtoon.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,18 +18,17 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserEntity loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findById(username)
-            .orElseThrow(
-                () -> new WebtoonException(ErrorCode.USER_NOT_FOUND, HttpStatus.BAD_REQUEST));
+    public UserEntity loadUserByUsername(String userId) throws UsernameNotFoundException {
+        return userRepository.findByUserId(userId)
+            .orElseThrow(() -> new UsernameNotFoundException("User ID Not found -> " + userId));
     }
 
     /**
      * 회원가입 :: userId 중복체크 후, userEntity에 추가한다.
      */
     public void signUp(UserDto.SignUp signUpInfo) {
-        if (userRepository.existsById(signUpInfo.getUserId())) {
-            throw new WebtoonException(ErrorCode.ALREADY_EXIST_USER_ID, HttpStatus.BAD_REQUEST);
+        if (userRepository.existsByUserId(signUpInfo.getUserId())) {
+            throw new RuntimeException("already exists ID -> " + signUpInfo.getUserId());
         }
 
         UserEntity userEntity = UserEntity.toEntity(signUpInfo);
@@ -45,14 +41,13 @@ public class UserService implements UserDetailsService {
      * 아이디/비밀번호 검증 :: 로그인을 위해 일치하는 아이디, 비밀번호가 있는지 검증한 후, 아이디와 권한을 리턴한다.
      */
     public UserDto.Authorization authenticate(UserDto.Login loginInfo) {
-        UserEntity userEntity = userRepository.findById(loginInfo.getUserId())
-            .orElseThrow(
-                () -> new WebtoonException(ErrorCode.FAILED_LOGIN, HttpStatus.BAD_REQUEST));
+        UserEntity userEntity = userRepository.findByUserId(loginInfo.getUserId())
+            .orElseThrow(() -> new RuntimeException("failed login"));
 
         if (!passwordEncoder.matches(loginInfo.getPassword(), userEntity.getPassword())) {
-            throw new WebtoonException(ErrorCode.FAILED_LOGIN, HttpStatus.BAD_REQUEST);
+            throw new RuntimeException("failed login");
         }
 
-        return new Authorization(userEntity.getUserId(), userEntity.getRole());
+        return new Authorization(userEntity.getUserId(), userEntity.getRole().name());
     }
 }

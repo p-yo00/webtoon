@@ -4,8 +4,13 @@ import com.yo.webtoon.model.constant.Role;
 import com.yo.webtoon.model.dto.UserDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -31,20 +36,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class UserEntity implements UserDetails {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String userId;
     private String password;
     private String userName;
     @Builder.Default
     private int point = 0;
     @CreatedDate
-    private LocalDateTime registerDate;
-    private LocalDateTime deleteDate;
-    private LocalDateTime adultCertificationDate;
-    private String role;
+    private LocalDateTime registerDatetime;
+    private LocalDateTime deleteDatetime;
+    private LocalDate adultCertificationDate;
+    @Enumerated(value = EnumType.STRING)
+    private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role));
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override
@@ -59,7 +67,7 @@ public class UserEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return deleteDate == null;
+        return deleteDatetime == null;
     }
 
     public static UserEntity toEntity(UserDto.SignUp userDto) {
@@ -67,8 +75,8 @@ public class UserEntity implements UserDetails {
             .userId(userDto.getUserId())
             .password(userDto.getPassword())
             .userName(userDto.getUserName())
-            .adultCertificationDate((userDto.isAdult()) ? LocalDateTime.now() : null)
-            .role((userDto.getRole() == null) ? Role.ROLE_GENERAL.name() : userDto.getRole())
+            .adultCertificationDate((userDto.isAdult()) ? LocalDate.now() : null)
+            .role((userDto.getRole() == null) ? Role.ROLE_GENERAL : Role.valueOf(userDto.getRole()))
             .build();
     }
 }
