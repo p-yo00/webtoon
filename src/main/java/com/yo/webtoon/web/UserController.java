@@ -1,5 +1,6 @@
 package com.yo.webtoon.web;
 
+import com.yo.webtoon.model.constant.SuccessCode;
 import com.yo.webtoon.model.dto.SuccessResponse;
 import com.yo.webtoon.model.dto.UserDto;
 import com.yo.webtoon.security.TokenProvider;
@@ -7,6 +8,7 @@ import com.yo.webtoon.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +30,15 @@ public class UserController {
     @PostMapping("/sign-up")
     public ResponseEntity<SuccessResponse> signUp(@RequestBody @Valid UserDto.SignUp request) {
         userService.signUp(request);
-        return ResponseEntity.ok(new SuccessResponse("회원가입 완료"));
+        HttpStatus statusCode = HttpStatus.CREATED;
+
+        return ResponseEntity
+            .status(statusCode)
+            .body(SuccessResponse.builder()
+                .successCode(SuccessCode.SIGNUP)
+                .message(SuccessCode.SIGNUP.getMessage())
+                .httpStatus(statusCode)
+                .build());
     }
 
     /**
@@ -36,9 +46,9 @@ public class UserController {
      */
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody @Valid UserDto.Login request) {
-        UserDto.Authorization authInfo = userService.authenticate(request);
+        String loginId = userService.authenticate(request);
 
-        String jwtToken = tokenProvider.generateToken(authInfo.getUserId());
+        String jwtToken = tokenProvider.generateToken(loginId);
         ResponseCookie activeCookie = ResponseCookie.from("activeToken", jwtToken)
             .httpOnly(true)
             .secure(true)

@@ -1,6 +1,6 @@
 package com.yo.webtoon.security;
 
-import com.yo.webtoon.model.entity.UserEntity;
+import com.yo.webtoon.model.dto.UserDetail;
 import com.yo.webtoon.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -36,7 +36,7 @@ public class TokenProvider {
      * 토큰에서 Authentication 객체를 리턴한다.
      */
     public Authentication getAuthentication(String token) {
-        UserEntity user = userService.loadUserByUsername(parseClaims(token).getSubject());
+        UserDetail user = userService.loadUserByUsername(parseClaims(token).getSubject());
         return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
     }
 
