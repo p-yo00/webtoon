@@ -4,7 +4,6 @@ import com.yo.webtoon.exception.WebtoonException;
 import com.yo.webtoon.model.constant.ErrorCode;
 import com.yo.webtoon.model.dto.UserDetail;
 import com.yo.webtoon.model.dto.UserDto;
-import com.yo.webtoon.model.dto.UserDto.Authorization;
 import com.yo.webtoon.model.entity.UserEntity;
 import com.yo.webtoon.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +51,7 @@ public class UserService implements UserDetailsService {
     /**
      * 아이디/비밀번호 검증 :: 로그인을 위해 일치하는 아이디, 비밀번호가 있는지 검증한 후, 아이디와 권한을 리턴한다.
      */
-    public UserDto.Authorization authenticate(UserDto.Login loginInfo) {
+    public String authenticate(UserDto.Login loginInfo) {
         UserEntity userEntity = userRepository.findByUserId(loginInfo.getUserId())
             .orElseThrow(
                 () -> new WebtoonException(ErrorCode.FAILED_LOGIN, HttpStatus.BAD_REQUEST));
@@ -61,6 +60,6 @@ public class UserService implements UserDetailsService {
             throw new WebtoonException(ErrorCode.FAILED_LOGIN, HttpStatus.BAD_REQUEST);
         }
 
-        return new Authorization(userEntity.getUserId(), userEntity.getRole().name());
+        return userEntity.getUserId();
     }
 }

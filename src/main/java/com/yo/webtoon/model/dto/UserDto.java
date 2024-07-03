@@ -41,14 +41,4 @@ public class UserDto {
         @NotBlank(message = "비밀번호를 입력해주세요.")
         private String password;
     }
-
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    @Setter
-    public static class Authorization {
-
-        private String userId;
-        private String role;
-    }
 }

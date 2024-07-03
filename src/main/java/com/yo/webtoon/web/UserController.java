@@ -46,9 +46,9 @@ public class UserController {
      */
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody @Valid UserDto.Login request) {
-        UserDto.Authorization authInfo = userService.authenticate(request);
+        String loginId = userService.authenticate(request);
 
-        String jwtToken = tokenProvider.generateToken(authInfo.getUserId());
+        String jwtToken = tokenProvider.generateToken(loginId);
         ResponseCookie activeCookie = ResponseCookie.from("activeToken", jwtToken)
             .httpOnly(true)
             .secure(true)
