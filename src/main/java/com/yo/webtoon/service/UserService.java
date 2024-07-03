@@ -58,7 +58,7 @@ public class UserService implements UserDetailsService {
                 () -> new WebtoonException(ErrorCode.FAILED_LOGIN, HttpStatus.BAD_REQUEST));
 
         if (!passwordEncoder.matches(loginInfo.getPassword(), userEntity.getPassword())) {
-            throw new RuntimeException("failed login");
+            throw new WebtoonException(ErrorCode.FAILED_LOGIN, HttpStatus.BAD_REQUEST);
         }
 
         return new Authorization(userEntity.getUserId(), userEntity.getRole().name());
