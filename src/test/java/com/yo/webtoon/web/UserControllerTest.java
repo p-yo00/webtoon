@@ -15,6 +15,8 @@ import com.yo.webtoon.model.dto.UserDto;
 import com.yo.webtoon.model.dto.UserDto.Login;
 import com.yo.webtoon.model.dto.UserDto.SignUp;
 import com.yo.webtoon.security.TokenProvider;
+import com.yo.webtoon.security.WebtoonAccessDeniedHandler;
+import com.yo.webtoon.security.WebtoonAuthEntryPoint;
 import com.yo.webtoon.service.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +38,12 @@ class UserControllerTest {
 
     @MockBean
     private TokenProvider tokenProvider;
+
+    @MockBean
+    private WebtoonAccessDeniedHandler webtoonAccessDeniedHandler;
+
+    @MockBean
+    private WebtoonAuthEntryPoint webtoonAuthEntryPoint;
 
     @Autowired
     private MockMvc mockMvc;
