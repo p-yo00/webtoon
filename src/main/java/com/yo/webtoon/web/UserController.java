@@ -1,6 +1,7 @@
 package com.yo.webtoon.web;
 
 import com.yo.webtoon.model.constant.SuccessCode;
+import com.yo.webtoon.model.dto.LoginUser;
 import com.yo.webtoon.model.dto.SuccessResponse;
 import com.yo.webtoon.model.dto.UserDto;
 import com.yo.webtoon.security.TokenProvider;
@@ -11,6 +12,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,5 +63,21 @@ public class UserController {
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, activeCookie.toString())
             .body(jwtToken);
+    }
+
+    /**
+     * 회원 삭제 :: 회원의 탈퇴일시 값을 현재 값으로 업데이트한다.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{deleteId}")
+    public ResponseEntity<SuccessResponse> deleteUser(@LoginUser String loginId,
+        @PathVariable("deleteId") String deleteId) {
+        userService.deleteUser(loginId, deleteId);
+
+        return ResponseEntity.ok(SuccessResponse.builder()
+            .httpStatus(HttpStatus.OK)
+            .successCode(SuccessCode.WITHDRAWAL)
+            .message(SuccessCode.WITHDRAWAL.getMessage())
+            .build());
     }
 }

@@ -6,7 +6,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum SuccessCode {
-    SIGNUP("회원가입이 완료되었습니다.");
+    SIGNUP("회원가입이 완료되었습니다."),
+    WITHDRAWAL("탈퇴가 완료되었습니다.");
 
     private final String message;
 

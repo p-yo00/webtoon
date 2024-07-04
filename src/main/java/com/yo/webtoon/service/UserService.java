@@ -2,10 +2,12 @@ package com.yo.webtoon.service;
 
 import com.yo.webtoon.exception.WebtoonException;
 import com.yo.webtoon.model.constant.ErrorCode;
+import com.yo.webtoon.model.constant.Role;
 import com.yo.webtoon.model.dto.UserDetail;
 import com.yo.webtoon.model.dto.UserDto;
 import com.yo.webtoon.model.entity.UserEntity;
 import com.yo.webtoon.repository.UserRepository;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -62,5 +64,29 @@ public class UserService implements UserDetailsService {
         }
 
         return userEntity.getUserId();
+    }
+
+    /**
+     * 회원 탈퇴 :: delete_datetime를 변경하며, 관리자 권한인 경우에만 자신이 아닌 다른 사용자를 삭제할 수 있다.
+     */
+    public void deleteUser(String loginId, String deleteId) {
+        UserEntity loginUser = userRepository.findByUserId(loginId)
+            .orElseThrow(
+                () -> new WebtoonException(ErrorCode.USER_NOT_FOUND, HttpStatus.BAD_REQUEST));
+
+        if (loginUser.getRole().equals(Role.ROLE_MANAGER)) { // 관리자는 모두 삭제할 수 있다.
+            UserEntity deleteUser = userRepository.findByUserId(deleteId)
+                .orElseThrow(
+                    () -> new WebtoonException(ErrorCode.USER_NOT_FOUND, HttpStatus.BAD_REQUEST));
+
+            deleteUser.setDeleteDatetime(LocalDateTime.now());
+            userRepository.save(deleteUser);
+        } else { // 관리자 외 사용자는 로그인 사용자와 일치해야 삭제할 수 있다.
+            if (!loginId.equals(deleteId)) {
+                throw new WebtoonException(ErrorCode.FORBIDDEN, HttpStatus.FORBIDDEN);
+            }
+            loginUser.setDeleteDatetime(LocalDateTime.now());
+            userRepository.save(loginUser);
+        }
     }
 }
