@@ -52,7 +52,8 @@ public class UserService implements UserDetailsService {
      * 아이디/비밀번호 검증 :: 로그인을 위해 일치하는 아이디, 비밀번호가 있는지 검증한 후, 아이디와 권한을 리턴한다.
      */
     public String authenticate(UserDto.Login loginInfo) {
-        UserEntity userEntity = userRepository.findByUserId(loginInfo.getUserId())
+        UserEntity userEntity = userRepository.findByUserIdAndDeleteDatetime(
+                loginInfo.getUserId(), null)
             .orElseThrow(
                 () -> new WebtoonException(ErrorCode.FAILED_LOGIN, HttpStatus.BAD_REQUEST));
 

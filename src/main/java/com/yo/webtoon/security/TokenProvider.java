@@ -5,6 +5,7 @@ import com.yo.webtoon.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import java.util.Date;
+import java.util.Optional;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,9 +36,11 @@ public class TokenProvider {
     /**
      * 토큰에서 Authentication 객체를 리턴한다.
      */
-    public Authentication getAuthentication(String token) {
+    public Optional<Authentication> getAuthentication(String token) {
         UserDetail user = userService.loadUserByUsername(parseClaims(token).getSubject());
-        return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
+        return user.isEnabled() ?
+            Optional.of(new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities()))
+            : Optional.empty();
     }
 
     /**
