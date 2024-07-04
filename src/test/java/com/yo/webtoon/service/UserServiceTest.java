@@ -82,7 +82,8 @@ class UserServiceTest {
     void login_NO_EXIST_ID() {
         // given
         UserDto.Login userDto = new UserDto.Login("id", "pw");
-        given(userRepository.findByUserId("id")).willReturn(Optional.empty());
+        given(userRepository.findByUserIdAndDeleteDatetime("id", null))
+            .willReturn(Optional.empty());
 
         // then & when
         WebtoonException e = assertThrows(WebtoonException.class,
@@ -97,7 +98,7 @@ class UserServiceTest {
     void login_NO_EXIST_PASSWORD() {
         // given
         UserDto.Login userDto = new UserDto.Login("id", "wrong-pw");
-        given(userRepository.findByUserId("id")).willReturn(
+        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
             Optional.of(UserEntity.builder()
                 .userId("id").password("pw").build()));
         given(passwordEncoder.matches("wrong-pw", "pw")).willReturn(false);
@@ -115,7 +116,7 @@ class UserServiceTest {
     void login_SUCCESS() {
         // given
         UserDto.Login userDto = new UserDto.Login("id", "pw");
-        given(userRepository.findByUserId("id")).willReturn(
+        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
             Optional.of(UserEntity.builder()
                 .userId("id").password("encode-pw").role(Role.ROLE_GENERAL)
                 .build()));
