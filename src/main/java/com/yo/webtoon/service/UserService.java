@@ -71,7 +71,7 @@ public class UserService implements UserDetailsService {
      * 회원 탈퇴 :: delete_datetime를 변경하며, 관리자 권한인 경우에만 자신이 아닌 다른 사용자를 삭제할 수 있다.
      */
     public void deleteUser(String loginId, String deleteId) {
-        UserEntity loginUser = userRepository.findByUserId(loginId)
+        UserEntity loginUser = userRepository.findByUserIdAndDeleteDatetime(loginId, null)
             .orElseThrow(
                 () -> new WebtoonException(ErrorCode.USER_NOT_FOUND, HttpStatus.BAD_REQUEST));
 
