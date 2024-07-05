@@ -14,8 +14,10 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -80,4 +82,46 @@ public class UserController {
             .message(SuccessCode.WITHDRAWAL.getMessage())
             .build());
     }
+
+    /**
+     * 회원 수정 :: 사용자 본인의 이름, 비밀번호를 수정한다.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping
+    public ResponseEntity<SuccessResponse> editUser(@LoginUser String loginId,
+        @RequestBody UserDto.Edit request) {
+        request.setUserId(loginId);
+        userService.editUser(request);
+
+        return ResponseEntity.ok(SuccessResponse.builder()
+            .httpStatus(HttpStatus.OK)
+            .successCode(SuccessCode.EDIT)
+            .message(SuccessCode.EDIT.getMessage())
+            .build());
+    }
+
+    /**
+     * 회원 정보 조회 :: 로그인한 사용자의 이름, ID, 포인트, 가입일시, 성인인증일을 조회한다.
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping
+    public ResponseEntity<UserDto.Get> getUser(@LoginUser String loginId) {
+        return ResponseEntity.ok(userService.getUser(loginId));
+    }
+
+    /**
+     * 성인 인증 :: 로그인한 사용자의 성인 인증을 완료한다.
+     */
+    @PreAuthorize("hasAnyRole('ROLE_GENERAL','ROLE_AUTHOR')")
+    @PutMapping("/certification")
+    public ResponseEntity<SuccessResponse> certifyAdult(@LoginUser String loginId) {
+        userService.certifyAdult(loginId);
+
+        return ResponseEntity.ok(SuccessResponse.builder()
+            .httpStatus(HttpStatus.OK)
+            .successCode(SuccessCode.CERTIFICATION)
+            .message(SuccessCode.CERTIFICATION.getMessage())
+            .build());
+    }
+
 }

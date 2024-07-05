@@ -11,7 +11,8 @@ public enum ErrorCode {
     FAILED_LOGIN("로그인에 실패했습니다."),
     NOT_VALID_INPUT("입력값 검증에 실패했습니다."),
     UNAUTHORIZED("인증 정보가 없습니다."),
-    FORBIDDEN("요청 권한이 없습니다.");
+    FORBIDDEN("요청 권한이 없습니다."),
+    WRONG_PASSWORD("비밀번호가 일치하지 않습니다.");
 
     private final String message;
 }

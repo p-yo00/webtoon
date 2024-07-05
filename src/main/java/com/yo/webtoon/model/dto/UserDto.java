@@ -3,6 +3,8 @@ package com.yo.webtoon.model.dto;
 import com.yo.webtoon.model.annotation.ValidRole;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,5 +42,35 @@ public class UserDto {
         private String userId;
         @NotBlank(message = "비밀번호를 입력해주세요.")
         private String password;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Edit {
+
+        private String userId;
+        @NotBlank(message = "이름을 입력해주세요.")
+        private String userName;
+        @NotBlank(message = "기존 비밀번호를 입력해주세요.")
+        private String oldPassword;
+        @NotBlank(message = "새 비밀번호를 입력해주세요.")
+        private String newPassword;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Get {
+
+        private String userId;
+        private String userName;
+        private int point;
+        private LocalDateTime registerDatetime;
+        private LocalDate adultCertificationDate;
     }
 }

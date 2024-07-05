@@ -7,6 +7,7 @@ import com.yo.webtoon.model.dto.UserDetail;
 import com.yo.webtoon.model.dto.UserDto;
 import com.yo.webtoon.model.entity.UserEntity;
 import com.yo.webtoon.repository.UserRepository;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -89,4 +90,55 @@ public class UserService implements UserDetailsService {
             userRepository.save(loginUser);
         }
     }
+
+    /**
+     * 회원 수정 :: 기존 비밀번호가 일치하면 새로운 비밀번호와 이름으로 업데이트할 수 있다.
+     */
+    public void editUser(UserDto.Edit editUser) {
+        UserEntity userEntity = userRepository.findByUserIdAndDeleteDatetime(
+                editUser.getUserId(), null)
+            .orElseThrow(
+                () -> new WebtoonException(ErrorCode.USER_NOT_FOUND, HttpStatus.BAD_REQUEST));
+
+        if (!passwordEncoder.matches(editUser.getOldPassword(), userEntity.getPassword())) {
+            throw new WebtoonException(ErrorCode.WRONG_PASSWORD, HttpStatus.BAD_REQUEST);
+        }
+
+        userEntity.setPassword(passwordEncoder.encode(editUser.getNewPassword()));
+        userEntity.setUserName(editUser.getUserName());
+
+        userRepository.save(userEntity);
+    }
+
+    /**
+     * 사용자 조회 :: 사용자 id와 일치하고 탈퇴하지 않은 사용자를 조회한다.
+     */
+    public UserDto.Get getUser(String userId) {
+        UserEntity userEntity = userRepository.findByUserIdAndDeleteDatetime(
+                userId, null)
+            .orElseThrow(
+                () -> new WebtoonException(ErrorCode.USER_NOT_FOUND, HttpStatus.BAD_REQUEST));
+
+        return UserDto.Get.builder()
+            .userName(userEntity.getUserName())
+            .userId(userEntity.getUserId())
+            .point(userEntity.getPoint())
+            .registerDatetime(userEntity.getRegisterDatetime())
+            .adultCertificationDate(userEntity.getAdultCertificationDate())
+            .build();
+    }
+
+    /**
+     * 성인 인증 :: 로그인한 사용자의 성인 인증 컬럼에 현재 날짜를 저장한다.
+     */
+    public void certifyAdult(String userId) {
+        UserEntity userEntity = userRepository.findByUserIdAndDeleteDatetime(
+                userId, null)
+            .orElseThrow(
+                () -> new WebtoonException(ErrorCode.USER_NOT_FOUND, HttpStatus.BAD_REQUEST));
+
+        userEntity.setAdultCertificationDate(LocalDate.now());
+        userRepository.save(userEntity);
+    }
+
 }
