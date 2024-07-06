@@ -17,4 +17,12 @@ public class ErrorResponse {
     private ErrorCode errorCode;
     private HttpStatus httpStatus;
     private String message;
+
+    public static ErrorResponse toErrorResponse(ErrorCode errorCode) {
+        return ErrorResponse.builder()
+            .errorCode(errorCode)
+            .message(errorCode.getMessage())
+            .httpStatus(errorCode.getHttpStatus())
+            .build();
+    }
 }

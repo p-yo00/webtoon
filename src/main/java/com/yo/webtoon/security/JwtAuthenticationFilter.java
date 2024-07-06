@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -31,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (tokenProvider.validateToken(token)) {
             Authentication auth = tokenProvider.getAuthentication(token)
                 .orElseThrow(
-                    () -> new WebtoonException(ErrorCode.USER_NOT_FOUND, HttpStatus.BAD_REQUEST));
+                    () -> new WebtoonException(ErrorCode.USER_NOT_FOUND));
             SecurityContextHolder.getContext().setAuthentication(auth);
 
             // 어노테이션 권한 인증을 위해 ID를 저장

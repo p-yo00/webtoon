@@ -9,7 +9,6 @@ import com.yo.webtoon.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,15 +35,10 @@ public class UserController {
     @PostMapping("/sign-up")
     public ResponseEntity<SuccessResponse> signUp(@RequestBody @Valid UserDto.SignUp request) {
         userService.signUp(request);
-        HttpStatus statusCode = HttpStatus.CREATED;
 
         return ResponseEntity
-            .status(statusCode)
-            .body(SuccessResponse.builder()
-                .successCode(SuccessCode.SIGNUP)
-                .message(SuccessCode.SIGNUP.getMessage())
-                .httpStatus(statusCode)
-                .build());
+            .status(SuccessCode.SIGNUP.getHttpStatus())
+            .body(SuccessResponse.toSuccessResponse(SuccessCode.SIGNUP));
     }
 
     /**
@@ -76,11 +70,7 @@ public class UserController {
         @PathVariable("deleteId") String deleteId) {
         userService.deleteUser(loginId, deleteId);
 
-        return ResponseEntity.ok(SuccessResponse.builder()
-            .httpStatus(HttpStatus.OK)
-            .successCode(SuccessCode.WITHDRAWAL)
-            .message(SuccessCode.WITHDRAWAL.getMessage())
-            .build());
+        return ResponseEntity.ok(SuccessResponse.toSuccessResponse(SuccessCode.WITHDRAWAL));
     }
 
     /**
@@ -93,11 +83,7 @@ public class UserController {
         request.setUserId(loginId);
         userService.editUser(request);
 
-        return ResponseEntity.ok(SuccessResponse.builder()
-            .httpStatus(HttpStatus.OK)
-            .successCode(SuccessCode.EDIT)
-            .message(SuccessCode.EDIT.getMessage())
-            .build());
+        return ResponseEntity.ok(SuccessResponse.toSuccessResponse(SuccessCode.EDIT));
     }
 
     /**
@@ -117,11 +103,7 @@ public class UserController {
     public ResponseEntity<SuccessResponse> certifyAdult(@LoginUser String loginId) {
         userService.certifyAdult(loginId);
 
-        return ResponseEntity.ok(SuccessResponse.builder()
-            .httpStatus(HttpStatus.OK)
-            .successCode(SuccessCode.CERTIFICATION)
-            .message(SuccessCode.CERTIFICATION.getMessage())
-            .build());
+        return ResponseEntity.ok(SuccessResponse.toSuccessResponse(SuccessCode.CERTIFICATION));
     }
 
 }

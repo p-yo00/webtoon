@@ -17,12 +17,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(WebtoonException.class)
     public ResponseEntity<ErrorResponse> handleWebtoonException(WebtoonException e) {
         return ResponseEntity
-            .status(e.getHttpStatus())
-            .body(ErrorResponse.builder()
-                .httpStatus(e.getHttpStatus())
-                .errorCode(e.getErrorCode())
-                .message(e.getErrorCode().getMessage())
-                .build());
+            .status(e.getErrorCode().getHttpStatus())
+            .body(ErrorResponse.toErrorResponse(e.getErrorCode()));
     }
 
     // @Valid 검증에서 실패했을 때 예외 처리
@@ -43,19 +39,10 @@ public class GlobalExceptionHandler {
     // 예상치 못 한 RuntimeException 발생 시 예외 처리
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> unexpectedException(RuntimeException e) {
-        StringBuffer sb = new StringBuffer();
-        for (StackTraceElement st : e.getStackTrace()) {
-            sb.append(st.toString());
-            sb.append("\n");
-        }
-        log.error("Unexpected Runtime Exception: {}", sb);
+        log.error("Unexpected Exception: ", e);
 
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(ErrorResponse.builder()
-                .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                .errorCode(ErrorCode.INTERNAL_SERVER_ERROR)
-                .message(ErrorCode.INTERNAL_SERVER_ERROR.getMessage())
-                .build());
+            .body(ErrorResponse.toErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 }
