@@ -4,7 +4,6 @@ import com.yo.webtoon.model.constant.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.http.HttpStatus;
 
 @Setter
 @Getter
@@ -12,5 +11,4 @@ import org.springframework.http.HttpStatus;
 public class WebtoonException extends RuntimeException {
 
     private ErrorCode errorCode;
-    private HttpStatus httpStatus;
 }
