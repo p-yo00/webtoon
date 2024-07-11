@@ -1,5 +1,6 @@
 package com.yo.webtoon.web;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -15,8 +16,10 @@ import com.yo.webtoon.model.dto.UserDto;
 import com.yo.webtoon.model.dto.UserDto.Login;
 import com.yo.webtoon.model.dto.UserDto.SignUp;
 import com.yo.webtoon.security.TokenProvider;
+import com.yo.webtoon.security.WebtoonAccessDeniedHandler;
+import com.yo.webtoon.security.WebtoonAuthEntryPoint;
 import com.yo.webtoon.service.UserService;
-import org.assertj.core.api.Assertions;
+import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,12 @@ class UserControllerTest {
 
     @MockBean
     private TokenProvider tokenProvider;
+
+    @MockBean
+    private WebtoonAccessDeniedHandler webtoonAccessDeniedHandler;
+
+    @MockBean
+    private WebtoonAuthEntryPoint webtoonAuthEntryPoint;
 
     @Autowired
     private MockMvc mockMvc;
@@ -80,7 +89,7 @@ class UserControllerTest {
             .andReturn();
 
         String message = result.getResolvedException().getMessage();
-        Assertions.assertThat(message).contains("유효하지 않은 권한입니다.");
+        assertThat(message).contains("유효하지 않은 권한입니다.");
     }
 
     @Test
@@ -119,6 +128,31 @@ class UserControllerTest {
             .andReturn();
 
         String message = result.getResolvedException().getMessage();
-        Assertions.assertThat(message).contains("아이디를 입력해주세요.");
+        assertThat(message).contains("아이디를 입력해주세요.");
+    }
+
+    @Test
+    @DisplayName("회원 조회 - 성공")
+    @WithMockUser
+    void getUser_SUCCESSS() throws Exception {
+        given(userService.getUser("1"))
+            .willReturn(UserDto.Get.builder()
+                .userId("1")
+                .point(100)
+                .adultCertificationDate(LocalDate.now())
+                .build());
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/user")
+                .with(csrf())
+                .requestAttr("userId", "1"))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        UserDto.Get result = objectMapper.readValue(json, UserDto.Get.class);
+
+        assertThat(result.getUserId()).isEqualTo("1");
+        assertThat(result.getPoint()).isEqualTo(100);
+        assertThat(result.getAdultCertificationDate()).isEqualTo(LocalDate.now());
     }
 }

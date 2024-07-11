@@ -17,4 +17,12 @@ public class SuccessResponse {
     private SuccessCode successCode;
     private HttpStatus httpStatus;
     private String message;
+
+    public static SuccessResponse toSuccessResponse(SuccessCode successCode) {
+        return SuccessResponse.builder()
+            .successCode(successCode)
+            .httpStatus(successCode.getHttpStatus())
+            .message(successCode.getMessage())
+            .build();
+    }
 }

@@ -1,5 +1,7 @@
 package com.yo.webtoon.security;
 
+import com.yo.webtoon.exception.WebtoonException;
+import com.yo.webtoon.model.constant.ErrorCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,8 +28,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
 
         if (tokenProvider.validateToken(token)) {
-            Authentication auth = tokenProvider.getAuthentication(token);
+            Authentication auth = tokenProvider.getAuthentication(token)
+                .orElseThrow(
+                    () -> new WebtoonException(ErrorCode.USER_NOT_FOUND));
             SecurityContextHolder.getContext().setAuthentication(auth);
+
+            // 어노테이션 권한 인증을 위해 ID를 저장
+            request.setAttribute("userId", auth.getName());
         }
 
         filterChain.doFilter(request, response);

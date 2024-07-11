@@ -10,9 +10,11 @@ import com.yo.webtoon.exception.WebtoonException;
 import com.yo.webtoon.model.constant.ErrorCode;
 import com.yo.webtoon.model.constant.Role;
 import com.yo.webtoon.model.dto.UserDto;
+import com.yo.webtoon.model.dto.UserDto.Edit;
 import com.yo.webtoon.model.dto.UserDto.SignUp;
 import com.yo.webtoon.model.entity.UserEntity;
 import com.yo.webtoon.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +24,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,13 +83,13 @@ class UserServiceTest {
     void login_NO_EXIST_ID() {
         // given
         UserDto.Login userDto = new UserDto.Login("id", "pw");
-        given(userRepository.findByUserId("id")).willReturn(Optional.empty());
+        given(userRepository.findByUserIdAndDeleteDatetime("id", null))
+            .willReturn(Optional.empty());
 
         // then & when
         WebtoonException e = assertThrows(WebtoonException.class,
             () -> userService.authenticate(userDto));
 
-        assertEquals(HttpStatus.BAD_REQUEST, e.getHttpStatus());
         assertEquals(ErrorCode.FAILED_LOGIN, e.getErrorCode());
     }
 
@@ -97,7 +98,7 @@ class UserServiceTest {
     void login_NO_EXIST_PASSWORD() {
         // given
         UserDto.Login userDto = new UserDto.Login("id", "wrong-pw");
-        given(userRepository.findByUserId("id")).willReturn(
+        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
             Optional.of(UserEntity.builder()
                 .userId("id").password("pw").build()));
         given(passwordEncoder.matches("wrong-pw", "pw")).willReturn(false);
@@ -106,7 +107,6 @@ class UserServiceTest {
         WebtoonException e = assertThrows(WebtoonException.class,
             () -> userService.authenticate(userDto));
 
-        assertEquals(HttpStatus.BAD_REQUEST, e.getHttpStatus());
         assertEquals(ErrorCode.FAILED_LOGIN, e.getErrorCode());
     }
 
@@ -115,7 +115,7 @@ class UserServiceTest {
     void login_SUCCESS() {
         // given
         UserDto.Login userDto = new UserDto.Login("id", "pw");
-        given(userRepository.findByUserId("id")).willReturn(
+        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
             Optional.of(UserEntity.builder()
                 .userId("id").password("encode-pw").role(Role.ROLE_GENERAL)
                 .build()));
@@ -125,5 +125,105 @@ class UserServiceTest {
         String loginId = userService.authenticate(userDto);
 
         assertEquals("id", loginId);
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 - 로그인 사용자 일치")
+    void delete_LOGIN() {
+        // given
+        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
+            Optional.of(UserEntity.builder()
+                .userId("id").password("encode-pw").role(Role.ROLE_GENERAL)
+                .build()));
+
+        ArgumentCaptor<UserEntity> captor = ArgumentCaptor.forClass(UserEntity.class);
+        userService.deleteUser("id", "id");
+        verify(userRepository, times(1)).save(captor.capture());
+
+        // when
+        Assertions.assertEquals(captor.getValue().getDeleteDatetime().getDayOfWeek(),
+            LocalDateTime.now().getDayOfWeek());
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 - 로그인 사용자 불일치")
+    void delete_LOGIN_FAIL() {
+        // given
+        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
+            Optional.of(UserEntity.builder()
+                .userId("id").password("encode-pw").role(Role.ROLE_GENERAL)
+                .build()));
+
+        Assertions.assertThrows(WebtoonException.class,
+            () -> userService.deleteUser("id", "differenceId"));
+
+        // when
+        Assertions.assertNull(
+            userRepository.findByUserIdAndDeleteDatetime("id", null).get().getDeleteDatetime());
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 - 관리자")
+    void deleteUser_MANAGER() {
+        // given
+        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
+            Optional.of(UserEntity.builder()
+                .userId("id").password("encode-pw").role(Role.ROLE_MANAGER)
+                .build()));
+
+        given(userRepository.findByUserId("deleteId")).willReturn(
+            Optional.of(UserEntity.builder()
+                .userId("deleteId")
+                .build()));
+
+        ArgumentCaptor<UserEntity> captor = ArgumentCaptor.forClass(UserEntity.class);
+        userService.deleteUser("id", "deleteId");
+        verify(userRepository, times(1)).save(captor.capture());
+
+        // when
+        assertEquals(captor.getValue().getUserId(), "deleteId");
+        assertEquals(captor.getValue().getDeleteDatetime().getDayOfWeek(),
+            LocalDateTime.now().getDayOfWeek());
+    }
+
+    @Test
+    @DisplayName("회원 수정 - 성공")
+    void editUser_SUCCESS() {
+        // given
+        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
+            Optional.of(UserEntity.builder()
+                .userId("id").password("encode-pw").role(Role.ROLE_MANAGER)
+                .build()));
+
+        given(passwordEncoder.matches("pw", "encode-pw")).willReturn(true);
+        given(passwordEncoder.encode("newPw")).willReturn("encode-newPw");
+
+        ArgumentCaptor<UserEntity> captor = ArgumentCaptor.forClass(UserEntity.class);
+        userService.editUser(Edit.builder()
+            .userId("id").userName("name").oldPassword("pw").newPassword("newPw")
+            .build());
+        verify(userRepository, times(1)).save(captor.capture());
+
+        // when
+        assertEquals(captor.getValue().getUserName(), "name");
+        assertEquals(captor.getValue().getPassword(), "encode-newPw");
+    }
+
+    @Test
+    @DisplayName("성인 인증")
+    void certifyAdult() {
+        // given
+        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
+            Optional.of(UserEntity.builder()
+                .userId("id").password("encode-pw").adultCertificationDate(null)
+                .build()));
+
+        ArgumentCaptor<UserEntity> captor = ArgumentCaptor.forClass(UserEntity.class);
+        userService.certifyAdult("id");
+        verify(userRepository, times(1)).save(captor.capture());
+
+        // when
+        assertEquals(captor.getValue().getAdultCertificationDate().getDayOfWeek(),
+            LocalDateTime.now().getDayOfWeek());
     }
 }
