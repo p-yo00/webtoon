@@ -14,7 +14,8 @@ public enum ErrorCode {
     UNAUTHORIZED("인증 정보가 없습니다.", HttpStatus.UNAUTHORIZED),
     FORBIDDEN("요청 권한이 없습니다.", HttpStatus.FORBIDDEN),
     WRONG_PASSWORD("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
-    INTERNAL_SERVER_ERROR("서버 내부 문제가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+    INTERNAL_SERVER_ERROR("서버 내부 문제가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    S3_IO_EXCEPTION("S3 이미지 저장에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String message;
     private final HttpStatus httpStatus;
