@@ -20,3 +20,4 @@ aws:
     accessKey: ${AWS_ACCESS_KEY}
     secretKey: ${AWS_SECRET_KEY}
     region: ${AWS_REGION}
+    bucketName: donation-webtoon

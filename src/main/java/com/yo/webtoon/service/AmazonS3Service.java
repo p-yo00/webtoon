@@ -20,15 +20,14 @@ public class AmazonS3Service {
     @Value("${aws.s3.region}")
     private String region;
 
-    public String getImgUrl(String imgKey) {
-        String bucketName = "donation-webtoon";
+    @Value("${aws.s3.bucketName}")
+    private String bucketName;
 
+    public String getImgUrl(String imgKey) {
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, imgKey);
     }
 
     public void putObject(String imgKey, MultipartFile multipartFile) {
-        String bucketName = "donation-webtoon";
-
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());
         objectMetadata.setContentLength(multipartFile.getSize());
