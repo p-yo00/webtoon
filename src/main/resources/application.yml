@@ -11,6 +11,10 @@ spring:
     show-sql: true
     database: mysql
 
+  elasticsearch:
+    uris: http://localhost:9200
+
+
 aws:
   s3:
     accessKey: ${AWS_ACCESS_KEY}
