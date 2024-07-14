@@ -1,6 +1,7 @@
 package com.yo.webtoon.web;
 
 import com.yo.webtoon.model.constant.SuccessCode;
+import com.yo.webtoon.model.dto.LoginUser;
 import com.yo.webtoon.model.dto.SuccessResponse;
 import com.yo.webtoon.model.dto.WebtoonDto;
 import com.yo.webtoon.service.WebtoonService;
@@ -24,7 +25,9 @@ public class WebtoonController {
      */
     @PostMapping
     @PreAuthorize("hasRole('ROLE_AUTHOR')")
-    public ResponseEntity<SuccessResponse> createWebtoon(@Valid WebtoonDto.Create request) {
+    public ResponseEntity<SuccessResponse> createWebtoon(@LoginUser String loginId,
+        @Valid WebtoonDto.Create request) {
+        request.setUserId(loginId);
         webtoonService.createWebtoon(request);
 
         return ResponseEntity.ok(SuccessResponse.toSuccessResponse(SuccessCode.CREATE_WEBTOON));

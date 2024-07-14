@@ -18,7 +18,7 @@ public class WebtoonDto {
     @NoArgsConstructor
     public static class Create {
 
-        private Long authorId;
+        private String userId;
         @NotBlank(message = "웹툰 제목을 입력해주세요.")
         private String title;
         private String description;
