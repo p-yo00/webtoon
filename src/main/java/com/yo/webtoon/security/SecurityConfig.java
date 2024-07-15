@@ -35,9 +35,10 @@ public class SecurityConfig implements WebMvcConfigurer {
             .sessionManagement((sm) ->
                 sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests((auth) -> auth.requestMatchers(
-                    // 회원가입, 로그인 API만 권한 없이 요청이 가능합니다.
+                    // 회원가입, 로그인, 검색은 권한 없이 요청이 가능합니다.
                     antMatcher("/user/sign-up/**"),
-                    antMatcher("/user/login/**")).permitAll()
+                    antMatcher("/user/login/**"),
+                    antMatcher("/search/**")).permitAll()
                 .anyRequest().authenticated())
             .exceptionHandling(e -> {
                 e.accessDeniedHandler(accessDeniedHandler);

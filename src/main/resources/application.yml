@@ -10,3 +10,14 @@ spring:
       ddl-auto: validate
     show-sql: true
     database: mysql
+
+  elasticsearch:
+    uris: http://localhost:9200
+
+
+aws:
+  s3:
+    accessKey: ${AWS_ACCESS_KEY}
+    secretKey: ${AWS_SECRET_KEY}
+    region: ${AWS_REGION}
+    bucketName: donation-webtoon
