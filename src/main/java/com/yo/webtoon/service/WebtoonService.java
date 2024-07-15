@@ -4,6 +4,7 @@ import com.yo.webtoon.exception.WebtoonException;
 import com.yo.webtoon.model.constant.ErrorCode;
 import com.yo.webtoon.model.dto.WebtoonDto.Create;
 import com.yo.webtoon.model.dto.WebtoonIndexDto;
+import com.yo.webtoon.model.entity.UserEntity;
 import com.yo.webtoon.model.entity.WebtoonEntity;
 import com.yo.webtoon.repository.UserRepository;
 import com.yo.webtoon.repository.WebtoonRepository;
@@ -25,7 +26,10 @@ public class WebtoonService {
      */
     @Transactional
     public void createWebtoon(Create newWebtoon) {
-        WebtoonEntity webtoonEntity = WebtoonEntity.toEntity(newWebtoon);
+        UserEntity loginUser = userRepository.findByUserId(newWebtoon.getUserId()).orElseThrow(
+            () -> new WebtoonException(ErrorCode.USER_NOT_FOUND));
+
+        WebtoonEntity webtoonEntity = WebtoonEntity.toEntity(newWebtoon, loginUser.getId());
         webtoonRepository.save(webtoonEntity);
 
         String imgKey = "webtoon_" + webtoonEntity.getId();
@@ -34,9 +38,7 @@ public class WebtoonService {
 
         amazonS3Service.putObject(imgKey, newWebtoon.getImg());
 
-        String authorName = userRepository.findById(webtoonEntity.getAuthorId()).orElseThrow(
-            () -> new WebtoonException(ErrorCode.USER_NOT_FOUND)).getUserName();
-
-        elasticsearchService.saveToWebtoonIndex(new WebtoonIndexDto(webtoonEntity, authorName));
+        elasticsearchService.saveToWebtoonIndex(
+            new WebtoonIndexDto(webtoonEntity, newWebtoon.getUserId()));
     }
 }
