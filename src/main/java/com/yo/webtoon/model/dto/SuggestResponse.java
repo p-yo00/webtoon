@@ -1,8 +1,8 @@
 package com.yo.webtoon.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -50,10 +50,8 @@ public class SuggestResponse {
         private final List<String> suggests;
 
         public Response(SuggestResponse response) {
-            suggests = new ArrayList<>();
-            for (Options hit : response.suggest.searchSuggest.get(0).options) {
-                suggests.add(hit.text);
-            }
+            suggests = response.suggest.searchSuggest.get(0).options.stream()
+                .map(Options::getText).collect(Collectors.toList());
         }
     }
 }
