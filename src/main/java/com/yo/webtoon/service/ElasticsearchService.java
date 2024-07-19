@@ -44,6 +44,10 @@ public class ElasticsearchService {
             .build());
     }
 
+    public void deleteWebtoonIndex(Long id) {
+        operations.delete(String.valueOf(id), WebtoonIndex.class);
+    }
+
     /**
      * 자동 완성 :: completion 필드에 prefix로 시작하는 값을 리스트로 리턴한다.
      */

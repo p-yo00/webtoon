@@ -8,7 +8,9 @@ import com.yo.webtoon.model.dto.WebtoonDto.EditInfo;
 import com.yo.webtoon.model.dto.WebtoonIndexDto;
 import com.yo.webtoon.model.entity.UserEntity;
 import com.yo.webtoon.model.entity.WebtoonEntity;
+import com.yo.webtoon.model.entity.WebtoonRedis;
 import com.yo.webtoon.repository.UserRepository;
+import com.yo.webtoon.repository.WebtoonRedisRepository;
 import com.yo.webtoon.repository.WebtoonRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ public class WebtoonService {
     private final AmazonS3Service amazonS3Service;
     private final ElasticsearchService elasticsearchService;
     private final UserRepository userRepository;
+    private final WebtoonRedisRepository webtoonRedisRepository;
 
     /**
      * 새로운 웹툰 정보를 mysql DB, elasticsearch에 저장하고, s3에 웹툰 대표이미지를 저장한다.
@@ -94,4 +97,48 @@ public class WebtoonService {
         }
     }
 
+    /**
+     * 웹툰을 완결 상태로 변경한다.
+     */
+    @Transactional
+    public void completeWebtoon(Long loginId, Long webtoonId) {
+        WebtoonEntity webtoonEntity = webtoonRepository.findById(webtoonId)
+            .orElseThrow(() -> new WebtoonException(ErrorCode.WEBTOON_NOT_FOUND));
+
+        UserEntity loginUser = userRepository.findById(loginId).orElseThrow(
+            () -> new WebtoonException(ErrorCode.USER_NOT_FOUND));
+
+        if (!webtoonEntity.getAuthorId().equals(loginUser.getId())) {
+            throw new WebtoonException(ErrorCode.FORBIDDEN);
+        }
+
+        webtoonEntity.setComplete(true);
+    }
+
+    /**
+     * 관리자가 웹툰을 공개 또는 비공개 상태로 변경한다. (isPublic field을 true or false로)
+     */
+    @Transactional
+    public void openOrCloseWebtoon(Long webtoonId) {
+        WebtoonEntity webtoonEntity = webtoonRepository.findById(webtoonId)
+            .orElseThrow(() -> new WebtoonException(ErrorCode.WEBTOON_NOT_FOUND));
+
+        UserEntity authorUser = userRepository.findById(webtoonEntity.getAuthorId()).orElseThrow(
+            () -> new WebtoonException(ErrorCode.USER_NOT_FOUND));
+
+        webtoonEntity.setPublic(!webtoonEntity.isPublic());
+
+        // 공개 상태로 변경되었다면 elasticsearch에 웹툰 검색 정보를 저장하고, redis에 웹툰의 시간마다 조회수를 저장하는 key 생성
+        if (webtoonEntity.isPublic()) {
+            elasticsearchService.saveToWebtoonIndex(new WebtoonIndexDto(webtoonEntity,
+                authorUser.getUserName()));
+            webtoonRedisRepository.save(new WebtoonRedis(webtoonId));
+        } else { // 비공개 상태로 변경되었다면 삭제
+            elasticsearchService.deleteWebtoonIndex(webtoonEntity.getId());
+            webtoonRedisRepository.deleteById(webtoonId);
+        }
+
+        log.info(String.format("[%s: %s] 웹툰의 공개 상태가 %b로 변경되었습니다.",
+            webtoonEntity.getId(), webtoonEntity.getTitle(), webtoonEntity.isPublic()));
+    }
 }

@@ -62,4 +62,29 @@ public class WebtoonController {
 
         return ResponseEntity.ok(SuccessResponse.toSuccessResponse(SuccessCode.UPDATE_WEBTOON));
     }
+
+    /**
+     * 연재중인 웹툰을 완결 상태로 변경한다.
+     */
+    @PutMapping("/complete/{webtoonId}")
+    @PreAuthorize("hasRole('ROLE_AUTHOR')")
+    public ResponseEntity<SuccessResponse> completeWebtoon(@LoginUser Long loginId,
+        @PathVariable("webtoonId") Long webtoonId) {
+        webtoonService.completeWebtoon(loginId, webtoonId);
+
+        return ResponseEntity.ok(SuccessResponse.toSuccessResponse(SuccessCode.UPDATE_WEBTOON));
+    }
+
+    /**
+     * 웹툰의 공개 상태를 공개 또는 비공개로 변경한다. (기존 상태와 반대로 토글)
+     */
+    @PutMapping("/public/{webtoonId}")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    public ResponseEntity<SuccessResponse> openOrCloseWebtoon(
+        @PathVariable("webtoonId") Long webtoonId) {
+        webtoonService.openOrCloseWebtoon(webtoonId);
+
+        return ResponseEntity.ok(SuccessResponse.toSuccessResponse(SuccessCode.UPDATE_WEBTOON));
+    }
+
 }
