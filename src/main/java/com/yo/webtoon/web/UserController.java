@@ -66,8 +66,8 @@ public class UserController {
      */
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{deleteId}")
-    public ResponseEntity<SuccessResponse> deleteUser(@LoginUser String loginId,
-        @PathVariable("deleteId") String deleteId) {
+    public ResponseEntity<SuccessResponse> deleteUser(@LoginUser Long loginId,
+        @PathVariable("deleteId") Long deleteId) {
         userService.deleteUser(loginId, deleteId);
 
         return ResponseEntity.ok(SuccessResponse.toSuccessResponse(SuccessCode.WITHDRAWAL));
@@ -78,7 +78,7 @@ public class UserController {
      */
     @PreAuthorize("isAuthenticated()")
     @PutMapping
-    public ResponseEntity<SuccessResponse> editUser(@LoginUser String loginId,
+    public ResponseEntity<SuccessResponse> editUser(@LoginUser Long loginId,
         @RequestBody UserDto.Edit request) {
         request.setUserId(loginId);
         userService.editUser(request);
@@ -91,7 +91,7 @@ public class UserController {
      */
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public ResponseEntity<UserDto.Get> getUser(@LoginUser String loginId) {
+    public ResponseEntity<UserDto.Get> getUser(@LoginUser Long loginId) {
         return ResponseEntity.ok(userService.getUser(loginId));
     }
 
@@ -100,7 +100,7 @@ public class UserController {
      */
     @PreAuthorize("hasAnyRole('ROLE_GENERAL','ROLE_AUTHOR')")
     @PutMapping("/certification")
-    public ResponseEntity<SuccessResponse> certifyAdult(@LoginUser String loginId) {
+    public ResponseEntity<SuccessResponse> certifyAdult(@LoginUser Long loginId) {
         userService.certifyAdult(loginId);
 
         return ResponseEntity.ok(SuccessResponse.toSuccessResponse(SuccessCode.CERTIFICATION));

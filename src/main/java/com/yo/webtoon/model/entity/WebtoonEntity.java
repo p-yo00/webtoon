@@ -53,9 +53,9 @@ public class WebtoonEntity {
     @CreatedDate
     private LocalDateTime createDatetime;
 
-    public static WebtoonEntity toEntity(WebtoonDto.Create webtoonDto, Long userId) {
+    public static WebtoonEntity toEntity(WebtoonDto.Create webtoonDto) {
         return WebtoonEntity.builder()
-            .authorId(userId)
+            .authorId(webtoonDto.getUserId())
             .title(webtoonDto.getTitle())
             .description(webtoonDto.getDescription())
             .keyword(webtoonDto.getKeyword())

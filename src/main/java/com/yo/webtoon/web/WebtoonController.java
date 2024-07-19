@@ -21,11 +21,11 @@ public class WebtoonController {
     private final WebtoonService webtoonService;
 
     /**
-     * 작가가 새로운 웹툰을 등록한다.
+     * Form-data로 입력받아 작가가 새로운 웹툰을 등록한다.
      */
     @PostMapping
     @PreAuthorize("hasRole('ROLE_AUTHOR')")
-    public ResponseEntity<SuccessResponse> createWebtoon(@LoginUser String loginId,
+    public ResponseEntity<SuccessResponse> createWebtoon(@LoginUser Long loginId,
         @Valid WebtoonDto.Create request) {
         request.setUserId(loginId);
         webtoonService.createWebtoon(request);
