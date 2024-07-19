@@ -83,7 +83,7 @@ class UserServiceTest {
     void login_NO_EXIST_ID() {
         // given
         UserDto.Login userDto = new UserDto.Login("id", "pw");
-        given(userRepository.findByUserIdAndDeleteDatetime("id", null))
+        given(userRepository.findByUserId("id"))
             .willReturn(Optional.empty());
 
         // then & when
@@ -98,7 +98,7 @@ class UserServiceTest {
     void login_NO_EXIST_PASSWORD() {
         // given
         UserDto.Login userDto = new UserDto.Login("id", "wrong-pw");
-        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
+        given(userRepository.findByUserId("id")).willReturn(
             Optional.of(UserEntity.builder()
                 .userId("id").password("pw").build()));
         given(passwordEncoder.matches("wrong-pw", "pw")).willReturn(false);
@@ -115,7 +115,7 @@ class UserServiceTest {
     void login_SUCCESS() {
         // given
         UserDto.Login userDto = new UserDto.Login("id", "pw");
-        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
+        given(userRepository.findByUserId("id")).willReturn(
             Optional.of(UserEntity.builder()
                 .userId("id").password("encode-pw").role(Role.ROLE_GENERAL)
                 .build()));
@@ -131,13 +131,13 @@ class UserServiceTest {
     @DisplayName("회원 탈퇴 - 로그인 사용자 일치")
     void delete_LOGIN() {
         // given
-        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
+        given(userRepository.findById(1L)).willReturn(
             Optional.of(UserEntity.builder()
-                .userId("id").password("encode-pw").role(Role.ROLE_GENERAL)
+                .id(1L).userId("id").password("encode-pw").role(Role.ROLE_GENERAL)
                 .build()));
 
         ArgumentCaptor<UserEntity> captor = ArgumentCaptor.forClass(UserEntity.class);
-        userService.deleteUser("id", "id");
+        userService.deleteUser(1L, 1L);
         verify(userRepository, times(1)).save(captor.capture());
 
         // when
@@ -149,35 +149,35 @@ class UserServiceTest {
     @DisplayName("회원 탈퇴 - 로그인 사용자 불일치")
     void delete_LOGIN_FAIL() {
         // given
-        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
+        given(userRepository.findById(1L)).willReturn(
             Optional.of(UserEntity.builder()
-                .userId("id").password("encode-pw").role(Role.ROLE_GENERAL)
+                .id(1L).userId("id").password("encode-pw").role(Role.ROLE_GENERAL)
                 .build()));
 
         Assertions.assertThrows(WebtoonException.class,
-            () -> userService.deleteUser("id", "differenceId"));
+            () -> userService.deleteUser(1L, 2L));
 
         // when
         Assertions.assertNull(
-            userRepository.findByUserIdAndDeleteDatetime("id", null).get().getDeleteDatetime());
+            userRepository.findById(1L).get().getDeleteDatetime());
     }
 
     @Test
     @DisplayName("회원 탈퇴 - 관리자")
     void deleteUser_MANAGER() {
         // given
-        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
+        given(userRepository.findById(1L)).willReturn(
             Optional.of(UserEntity.builder()
-                .userId("id").password("encode-pw").role(Role.ROLE_MANAGER)
+                .id(1L).userId("id").password("encode-pw").role(Role.ROLE_MANAGER)
                 .build()));
 
-        given(userRepository.findByUserId("deleteId")).willReturn(
+        given(userRepository.findById(2L)).willReturn(
             Optional.of(UserEntity.builder()
-                .userId("deleteId")
+                .id(2L).userId("deleteId")
                 .build()));
 
         ArgumentCaptor<UserEntity> captor = ArgumentCaptor.forClass(UserEntity.class);
-        userService.deleteUser("id", "deleteId");
+        userService.deleteUser(1L, 2L);
         verify(userRepository, times(1)).save(captor.capture());
 
         // when
@@ -190,9 +190,9 @@ class UserServiceTest {
     @DisplayName("회원 수정 - 성공")
     void editUser_SUCCESS() {
         // given
-        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
+        given(userRepository.findById(1L)).willReturn(
             Optional.of(UserEntity.builder()
-                .userId("id").password("encode-pw").role(Role.ROLE_MANAGER)
+                .id(1L).userId("id").password("encode-pw").role(Role.ROLE_MANAGER)
                 .build()));
 
         given(passwordEncoder.matches("pw", "encode-pw")).willReturn(true);
@@ -200,7 +200,7 @@ class UserServiceTest {
 
         ArgumentCaptor<UserEntity> captor = ArgumentCaptor.forClass(UserEntity.class);
         userService.editUser(Edit.builder()
-            .userId("id").userName("name").oldPassword("pw").newPassword("newPw")
+            .userId(1L).userName("name").oldPassword("pw").newPassword("newPw")
             .build());
         verify(userRepository, times(1)).save(captor.capture());
 
@@ -213,13 +213,13 @@ class UserServiceTest {
     @DisplayName("성인 인증")
     void certifyAdult() {
         // given
-        given(userRepository.findByUserIdAndDeleteDatetime("id", null)).willReturn(
+        given(userRepository.findById(1L)).willReturn(
             Optional.of(UserEntity.builder()
-                .userId("id").password("encode-pw").adultCertificationDate(null)
+                .id(1L).userId("id").password("encode-pw").adultCertificationDate(null)
                 .build()));
 
         ArgumentCaptor<UserEntity> captor = ArgumentCaptor.forClass(UserEntity.class);
-        userService.certifyAdult("id");
+        userService.certifyAdult(1L);
         verify(userRepository, times(1)).save(captor.capture());
 
         // when
