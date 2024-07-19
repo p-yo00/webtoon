@@ -51,7 +51,7 @@ public class UserDto {
     @NoArgsConstructor
     public static class Edit {
 
-        private String userId;
+        private Long userId;
         @NotBlank(message = "이름을 입력해주세요.")
         private String userName;
         @NotBlank(message = "기존 비밀번호를 입력해주세요.")

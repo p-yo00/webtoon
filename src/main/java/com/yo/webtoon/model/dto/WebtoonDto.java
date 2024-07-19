@@ -18,20 +18,16 @@ public class WebtoonDto {
     @NoArgsConstructor
     public static class Create {
 
-        private String userId;
+        private Long userId;
         @NotBlank(message = "웹툰 제목을 입력해주세요.")
         private String title;
         private String description;
         private List<String> keyword;
         private MultipartFile img;
         private String imgUrl;
-        @NotBlank(message = "장르를 선택해주세요.")
         private String genre;
-        @NotBlank(message = "연령제한을 선택해주세요.")
         private boolean ageLimit;
-        @NotBlank(message = "업로드 주기를 선택해주세요.")
         private int uploadCycle;
-        @NotBlank(message = "알람을 설정해주세요.")
-        boolean donationAlarm;
+        private boolean donationAlarm;
     }
 }
