@@ -34,4 +34,34 @@ public class WebtoonDto {
         private int uploadCycle;
         private boolean donationAlarm;
     }
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EditInfo {
+
+        private Long userId;
+        private Long webtoonId;
+        private String description;
+        private List<String> keyword;
+        private MultipartFile img;
+        private int uploadCycle;
+        private boolean donationAlarm;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EditConfig {
+
+        private Long webtoonId;
+        private String title;
+        @Enumerated(value = EnumType.STRING)
+        private Genre genre;
+        private boolean ageLimit;
+    }
 }
