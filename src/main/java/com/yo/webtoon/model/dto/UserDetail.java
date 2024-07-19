@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Setter
 public class UserDetail implements UserDetails {
 
+    private Long id;
     private String userId;
     private String password;
     private LocalDateTime deleteDatetime;
