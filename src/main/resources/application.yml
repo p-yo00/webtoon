@@ -14,6 +14,10 @@ spring:
   elasticsearch:
     uris: http://localhost:9200
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 aws:
   s3:
