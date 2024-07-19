@@ -1,9 +1,12 @@
 package com.yo.webtoon.model.entity;
 
+import com.yo.webtoon.model.constant.Genre;
 import com.yo.webtoon.model.dto.WebtoonDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,7 +43,8 @@ public class WebtoonEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     private List<String> keyword;
     private String imgUrl;
-    private String genre;
+    @Enumerated(value = EnumType.STRING)
+    private Genre genre;
     private boolean hasAgeLimit;
     private int uploadCycle;
     private boolean donationAlarm;

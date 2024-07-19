@@ -1,5 +1,8 @@
 package com.yo.webtoon.model.dto;
 
+import com.yo.webtoon.model.constant.Genre;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -25,7 +28,8 @@ public class WebtoonDto {
         private List<String> keyword;
         private MultipartFile img;
         private String imgUrl;
-        private String genre;
+        @Enumerated(value = EnumType.STRING)
+        private Genre genre;
         private boolean ageLimit;
         private int uploadCycle;
         private boolean donationAlarm;
