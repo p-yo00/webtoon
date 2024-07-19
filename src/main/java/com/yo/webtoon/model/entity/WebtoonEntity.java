@@ -49,7 +49,9 @@ public class WebtoonEntity {
     private int uploadCycle;
     private boolean donationAlarm;
     @Builder.Default
-    private Long viewCnt = 0L;
+    private Long totalViewCnt = 0L;
+    @Builder.Default
+    private Long recentViewCnt = 0L;
     @Builder.Default
     private boolean isPublic = false;
     @Builder.Default
