@@ -20,14 +20,14 @@ public class WebtoonIndexDto {
     private String title;
     private String author;
     private List<String> keyword;
-    private String thumbnailUrl;
+    private String imgUrl;
 
     public WebtoonIndexDto(WebtoonIndex index) {
         this.id = index.getId();
         this.title = index.getTitle();
         this.author = index.getAuthor();
         this.keyword = index.getKeyword();
-        this.thumbnailUrl = index.getThumbnailUrl();
+        this.imgUrl = index.getImgUrl();
     }
 
     public WebtoonIndexDto(WebtoonEntity entity, String authorName) {
@@ -35,5 +35,6 @@ public class WebtoonIndexDto {
         this.title = entity.getTitle();
         this.author = authorName;
         this.keyword = entity.getKeyword();
+        this.imgUrl = entity.getImgUrl();
     }
 }

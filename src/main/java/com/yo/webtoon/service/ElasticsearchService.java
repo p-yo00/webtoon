@@ -39,7 +39,7 @@ public class ElasticsearchService {
             .title(webtoonIndexDto.getTitle())
             .author(webtoonIndexDto.getAuthor())
             .keyword(webtoonIndexDto.getKeyword())
-            .thumbnailUrl(webtoonIndexDto.getThumbnailUrl())
+            .imgUrl(webtoonIndexDto.getImgUrl())
             .suggest(new Completion(suggest))
             .build());
     }

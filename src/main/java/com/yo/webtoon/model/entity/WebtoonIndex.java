@@ -27,7 +27,7 @@ public class WebtoonIndex {
     private String author;
     @Field(type = FieldType.Keyword)
     private List<String> keyword;
-    private String thumbnailUrl;
+    private String imgUrl;
     @CompletionField
     private Completion suggest;
 }
