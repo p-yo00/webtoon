@@ -8,6 +8,7 @@ import com.yo.webtoon.model.constant.ErrorCode;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,7 @@ public class AmazonS3Service {
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, imgKey);
     }
 
+    @Async
     public void putObject(String imgKey, MultipartFile multipartFile) {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());
