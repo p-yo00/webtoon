@@ -11,8 +11,10 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -102,5 +104,31 @@ public class WebtoonController {
         Pageable pageable) {
 
         return ResponseEntity.ok(webtoonService.getWebtoon(webtoonParams, pageable));
+    }
+
+    /**
+     * 웹툰을 wishlist에 등록한다.
+     */
+    @PostMapping("/wishlist/{webtoonId}")
+    @PreAuthorize("hasAnyRole('ROLE_GENERAL','ROLE_AUTHOR')")
+    public ResponseEntity<SuccessResponse> createWishlist(@LoginUser Long loginId,
+        @PathVariable("webtoonId") Long webtoonId) {
+        webtoonService.createWishlist(loginId, webtoonId);
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(SuccessResponse.toSuccessResponse(SuccessCode.ADD_WISHLIST));
+    }
+
+    /**
+     * wishlist에 등록된 웹툰을 wishlist에서 삭제한다.
+     */
+    @DeleteMapping("/wishlist/{webtoonId}")
+    @PreAuthorize("hasAnyRole('ROLE_GENERAL','ROLE_AUTHOR')")
+    public ResponseEntity<SuccessResponse> deleteWishlist(@LoginUser Long loginId,
+        @PathVariable("webtoonId") Long webtoonId) {
+        webtoonService.deleteWishlist(loginId, webtoonId);
+
+        return ResponseEntity.ok(SuccessResponse.toSuccessResponse(SuccessCode.REMOVE_WISHLIST));
     }
 }

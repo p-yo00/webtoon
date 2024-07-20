@@ -11,10 +11,12 @@ import com.yo.webtoon.model.entity.EpisodeEntity;
 import com.yo.webtoon.model.entity.UserEntity;
 import com.yo.webtoon.model.entity.WebtoonEntity;
 import com.yo.webtoon.model.entity.WebtoonRedis;
+import com.yo.webtoon.model.entity.WishlistEntity;
 import com.yo.webtoon.repository.EpisodeRepository;
 import com.yo.webtoon.repository.UserRepository;
 import com.yo.webtoon.repository.WebtoonRedisRepository;
 import com.yo.webtoon.repository.WebtoonRepository;
+import com.yo.webtoon.repository.WishlistRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class WebtoonService {
     private final UserRepository userRepository;
     private final WebtoonRedisRepository webtoonRedisRepository;
     private final EpisodeRepository episodeRepository;
+    private final WishlistRepository wishlistRepository;
     private final AsyncService asyncService;
 
     /**
@@ -187,5 +190,24 @@ public class WebtoonService {
 
         webtoonRedisRepository.findAll().forEach(webtoonRedis ->
             asyncService.asyncUpdateWebtoonView(webtoonRedis, curHour));
+    }
+
+    /**
+     * 사용자의 위시리스트에 웹툰 추가
+     */
+    @Transactional
+    public void createWishlist(Long loginId, Long webtoonId) {
+        wishlistRepository.save(WishlistEntity.builder()
+            .userId(loginId)
+            .webtoonId(webtoonId)
+            .build());
+    }
+
+    /**
+     * 사용자의 위시리스트에서 웹툰 삭제
+     */
+    @Transactional
+    public void deleteWishlist(Long loginId, Long webtoonId) {
+        wishlistRepository.deleteByUserIdAndWebtoonId(loginId, webtoonId);
     }
 }
