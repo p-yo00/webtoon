@@ -197,6 +197,18 @@ public class WebtoonService {
             asyncService.asyncUpdateWebtoonView(webtoonRedis, curHour));
     }
 
+    /*
+     * 사용자별 추천 웹툰을 10개 조회한다.
+     * 1. 사용자가 아직 보지 않은 웹툰
+     * 2. 사용자가 그동안 본 웹툰 중 가장 많이 본 장르 3개
+     * 3. 가장 조회수가 높은 웹툰을 추천한다.
+     */
+    public List<WebtoonIndexDto> getRecommendWebtoon(Long loginId) {
+        List<String> genres = webtoonRepository.findFavoriteGenre(loginId, Pageable.ofSize(3).first());
+
+        return webtoonRepository.recommendWebtoon(loginId, genres, Pageable.ofSize(10).first());
+    }
+
     /**
      * 사용자의 위시리스트에 웹툰 추가
      */

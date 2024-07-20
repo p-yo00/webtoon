@@ -107,6 +107,15 @@ public class WebtoonController {
     }
 
     /**
+     * 사용자별 추천 웹툰을 조회한다.
+     */
+    @GetMapping("/recommend")
+    public ResponseEntity<List<WebtoonIndexDto>> getRecommendWebtoon(@LoginUser Long loginId) {
+
+        return ResponseEntity.ok(webtoonService.getRecommendWebtoon(loginId));
+    }
+
+    /**
      * 웹툰을 wishlist에 등록한다.
      */
     @PostMapping("/wishlist/{webtoonId}")

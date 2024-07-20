@@ -44,4 +44,23 @@ public interface WebtoonRepository extends JpaRepository<WebtoonEntity, Long> {
         + "where webtoonId=w.id) desc")
     List<WebtoonIndexDto> findByGenreAndIsCompleteOrderByWishlist(
         Genre genre, boolean isComplete, Pageable pageable);
+
+    @Query("select w.genre from ViewHistoryEntity vh "
+        + "join EpisodeEntity ep on vh.episodeId = ep.id "
+        + "join WebtoonEntity w on ep.webtoonId = w.id "
+        + "where vh.userId = ?1 "
+        + "group by w.genre "
+        + "order by count(w.genre) desc")
+    List<String> findFavoriteGenre(Long userId, Pageable pageable);
+
+    @Query("select new com.yo.webtoon.model.dto.WebtoonIndexDto(w, u.userName) "
+        + "from WebtoonEntity w join UserEntity u on w.authorId=u.id "
+        + "where w.isPublic=true and w.id not in ("
+        + "select e.webtoonId from ViewHistoryEntity vh "
+        + "join EpisodeEntity e on vh.episodeId = e.id "
+        + "join WebtoonEntity w on e.webtoonId = w.id "
+        + "where vh.userId=?1) "
+        + "and w.genre in ?2 "
+        + "order by w.totalViewCnt desc")
+    List<WebtoonIndexDto> recommendWebtoon(Long userId, List<String> genres, Pageable pageable);
 }
