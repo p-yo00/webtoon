@@ -1,7 +1,9 @@
 package com.yo.webtoon.web;
 
 import com.yo.webtoon.model.dto.SuggestResponse.Response;
+import com.yo.webtoon.model.dto.WebtoonIndexDto;
 import com.yo.webtoon.service.ElasticsearchService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +32,7 @@ public class SearchController {
      * 검색 시, 웹툰의 제목/작성자/키워드와 일치하는 웹툰 검색 결과를 리턴한다.
      */
     @GetMapping
-    public ResponseEntity<?> search(@RequestParam("q") String keyword) {
+    public ResponseEntity<List<WebtoonIndexDto>> search(@RequestParam("q") String keyword) {
         return ResponseEntity.ok(
             elasticsearchService.findByKeyword(keyword)
         );
