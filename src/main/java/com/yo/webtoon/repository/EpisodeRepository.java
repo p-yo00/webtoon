@@ -7,5 +7,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EpisodeRepository extends JpaRepository<EpisodeEntity, Long> {
+
     Optional<EpisodeEntity> findFirstByWebtoonIdOrderByUploadDtDesc(Long webtoonId);
+
+    Optional<EpisodeEntity> findByWebtoonIdAndEpisodeNum(Long webtoonId, int episodeNum);
 }

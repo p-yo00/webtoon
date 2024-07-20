@@ -3,11 +3,17 @@ package com.yo.webtoon.service;
 import com.yo.webtoon.exception.WebtoonException;
 import com.yo.webtoon.model.constant.ErrorCode;
 import com.yo.webtoon.model.constant.SseCode;
+import com.yo.webtoon.model.dto.EpisodeDto;
 import com.yo.webtoon.model.dto.EpisodeDto.Upload;
 import com.yo.webtoon.model.entity.EpisodeContentEntity;
 import com.yo.webtoon.model.entity.EpisodeEntity;
+import com.yo.webtoon.model.entity.ViewHistoryEntity;
 import com.yo.webtoon.model.entity.WebtoonEntity;
+import com.yo.webtoon.model.entity.WebtoonRedis;
+import com.yo.webtoon.repository.EpisodeContentRepository;
 import com.yo.webtoon.repository.EpisodeRepository;
+import com.yo.webtoon.repository.ViewHistoryRepository;
+import com.yo.webtoon.repository.WebtoonRedisRepository;
 import com.yo.webtoon.repository.WebtoonRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,6 +31,9 @@ public class EpisodeService {
     private final EpisodeRepository episodeRepository;
     private final AmazonS3Service amazonS3Service;
     private final SseService sseService;
+    private final EpisodeContentRepository episodeContentRepository;
+    private final ViewHistoryRepository viewHistoryRepository;
+    private final WebtoonRedisRepository webtoonRedisRepository;
 
     /**
      * 에피소드 업로드 : episode 테이블과 S3에 저장하고 업로드 알림 전송
@@ -98,5 +107,40 @@ public class EpisodeService {
         }
 
         return uploadDt;
+    }
+
+
+    /**
+     * 에피소드 조회 - 에피소드 내 이미지 리턴, 조회수 추가, 열람 기록 추가
+     */
+    @Transactional
+    public EpisodeDto.ImgUrls readEpisode(Long userId, Long webtoonId, int episodeNum) {
+        // 에피소드에 저장된 이미지 경로 가져오기
+        EpisodeEntity episodeEntity = episodeRepository.findByWebtoonIdAndEpisodeNum(webtoonId,
+                episodeNum)
+            .orElseThrow(() -> new WebtoonException(ErrorCode.EPISODE_NOT_FOUND));
+
+        // redis에서 웹툰의 현재 시간대 조회수 증가
+        WebtoonRedis webtoonRedis = webtoonRedisRepository.findById(webtoonId)
+            .orElse(new WebtoonRedis(webtoonId));
+
+        int currentHour = LocalDateTime.now().getHour();
+        webtoonRedis.getHourlyRecentViews()
+            .put(currentHour, webtoonRedis.getHourlyRecentViews().get(currentHour) + 1);
+
+        webtoonRedisRepository.save(webtoonRedis);
+
+        // 열람 기록 추가
+        if (viewHistoryRepository.findByEpisodeIdAndUserId(episodeEntity.getId(), userId)
+            .isEmpty()) {
+            viewHistoryRepository.save(ViewHistoryEntity.builder()
+                .episodeId(episodeEntity.getId())
+                .userId(userId)
+                .build());
+        }
+
+        return new EpisodeDto.ImgUrls(
+            episodeContentRepository.findByEpisodeIdOrderBySequenceNum(episodeEntity.getId())
+                .stream().map(EpisodeContentEntity::getImgUrl).toList());
     }
 }

@@ -27,4 +27,11 @@ public class EpisodeDto {
         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime uploadDt;
     }
+
+    @Getter
+    @AllArgsConstructor
+    public static class ImgUrls {
+
+        List<String> imgUrls;
+    }
 }
