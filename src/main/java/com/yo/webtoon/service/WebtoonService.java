@@ -7,9 +7,11 @@ import com.yo.webtoon.model.dto.WebtoonDto.Create;
 import com.yo.webtoon.model.dto.WebtoonDto.EditConfig;
 import com.yo.webtoon.model.dto.WebtoonDto.EditInfo;
 import com.yo.webtoon.model.dto.WebtoonIndexDto;
+import com.yo.webtoon.model.entity.EpisodeEntity;
 import com.yo.webtoon.model.entity.UserEntity;
 import com.yo.webtoon.model.entity.WebtoonEntity;
 import com.yo.webtoon.model.entity.WebtoonRedis;
+import com.yo.webtoon.repository.EpisodeRepository;
 import com.yo.webtoon.repository.UserRepository;
 import com.yo.webtoon.repository.WebtoonRedisRepository;
 import com.yo.webtoon.repository.WebtoonRepository;
@@ -32,6 +34,7 @@ public class WebtoonService {
     private final ElasticsearchService elasticsearchService;
     private final UserRepository userRepository;
     private final WebtoonRedisRepository webtoonRedisRepository;
+    private final EpisodeRepository episodeRepository;
     private final AsyncService asyncService;
 
     /**
@@ -132,6 +135,8 @@ public class WebtoonService {
         UserEntity authorUser = userRepository.findById(webtoonEntity.getAuthorId()).orElseThrow(
             () -> new WebtoonException(ErrorCode.USER_NOT_FOUND));
 
+        throwIfNotExist1EpisodeInWebtoon(webtoonId);
+
         webtoonEntity.setPublic(!webtoonEntity.isPublic());
 
         // 공개 상태로 변경되었다면 elasticsearch에 웹툰 검색 정보를 저장하고, redis에 웹툰의 시간마다 조회수를 저장하는 key 생성
@@ -146,6 +151,18 @@ public class WebtoonService {
 
         log.info(String.format("[%s: %s] 웹툰의 공개 상태가 %b로 변경되었습니다.",
             webtoonEntity.getId(), webtoonEntity.getTitle(), webtoonEntity.isPublic()));
+    }
+
+    /**
+     * webtoonId의 웹툰이 에피소드가 하나 이상 있는지 확인하고 없으면 exception을 던진다.
+     */
+    private void throwIfNotExist1EpisodeInWebtoon(Long webtoonId) {
+        EpisodeEntity episode = episodeRepository.findFirstByWebtoonIdOrderByUploadDtDesc(webtoonId)
+            .orElseThrow(() -> new WebtoonException(ErrorCode.MUST_HAVE_1_EPISODE_TO_OPEN));
+
+        if (episode.getUploadDt().isAfter(LocalDateTime.now())) {
+            throw new WebtoonException(ErrorCode.MUST_HAVE_1_EPISODE_TO_OPEN);
+        }
     }
 
     /**
