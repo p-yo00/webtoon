@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -172,6 +174,7 @@ public class WebtoonService {
     /**
      * 웹툰을 [완결여부]와 [장르별]로 '분류'하고 [인기순], [실시간인기순], [최신업로드순], [찜많은순]으로 '정렬'하여 조회할 수 있다.
      */
+    @Cacheable(key = "#p0", value = "get_webtoon")
     public List<WebtoonIndexDto> getWebtoon(GetWebtoonParams webtoonParams, Pageable pageable) {
         return webtoonParams.getOrder().search(
             webtoonRepository, webtoonParams.getGenre(), webtoonParams.isComplete(), pageable
@@ -182,9 +185,10 @@ public class WebtoonService {
         매시간 redis에 저장된 모든 웹툰의 조회수로 DB의 전체 조회수, 실시간 조회수 항목에 업데이트한다.
         [전체 조회수]는 이전 한시간동안 기록된 조회수를 기존값에 더해준다.
         [실시간 조회수]는 0~23시에 기록돼있는 조회수를 모두 더한다.
-        현재 시간에 저장된 조회수는 0으로 리셋한다.
+        현재 시간에 저장된 조회수는 0으로 리셋하고 웹툰 조회 캐시도 삭제한다.
     */
     @Scheduled(cron = "0 0 0/1 * * *")
+    @CacheEvict(value = "get_webtoon", allEntries = true)
     @Transactional
     public void updateWebtoonView() {
         int curHour = LocalDateTime.now().getHour();
