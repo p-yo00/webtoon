@@ -13,10 +13,12 @@ import com.yo.webtoon.model.entity.WebtoonRedis;
 import com.yo.webtoon.repository.UserRepository;
 import com.yo.webtoon.repository.WebtoonRedisRepository;
 import com.yo.webtoon.repository.WebtoonRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class WebtoonService {
     private final ElasticsearchService elasticsearchService;
     private final UserRepository userRepository;
     private final WebtoonRedisRepository webtoonRedisRepository;
+    private final AsyncService asyncService;
 
     /**
      * 새로운 웹툰 정보를 mysql DB, elasticsearch에 저장하고, s3에 웹툰 대표이미지를 저장한다.
@@ -152,5 +155,20 @@ public class WebtoonService {
         return webtoonParams.getOrder().search(
             webtoonRepository, webtoonParams.getGenre(), webtoonParams.isComplete(), pageable
         );
+    }
+
+    /*
+        매시간 redis에 저장된 모든 웹툰의 조회수로 DB의 전체 조회수, 실시간 조회수 항목에 업데이트한다.
+        [전체 조회수]는 이전 한시간동안 기록된 조회수를 기존값에 더해준다.
+        [실시간 조회수]는 0~23시에 기록돼있는 조회수를 모두 더한다.
+        현재 시간에 저장된 조회수는 0으로 리셋한다.
+    */
+    @Scheduled(cron = "0 0 0/1 * * *")
+    @Transactional
+    public void updateWebtoonView() {
+        int curHour = LocalDateTime.now().getHour();
+
+        webtoonRedisRepository.findAll().forEach(webtoonRedis ->
+            asyncService.asyncUpdateWebtoonView(webtoonRedis, curHour));
     }
 }
