@@ -15,7 +15,7 @@ public class SseService {
     private static final AtomicInteger eventId = new AtomicInteger(0);
 
     public SseEmitter subscribe() {
-        SseEmitter emitter = new SseEmitter();
+        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         emitters.add(emitter);
 
         emitter.onCompletion(() -> emitters.remove(emitter));
