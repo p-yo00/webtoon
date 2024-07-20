@@ -1,14 +1,20 @@
 package com.yo.webtoon.web;
 
 import com.yo.webtoon.model.constant.SuccessCode;
+import com.yo.webtoon.model.dto.GetWebtoonParams;
 import com.yo.webtoon.model.dto.LoginUser;
 import com.yo.webtoon.model.dto.SuccessResponse;
 import com.yo.webtoon.model.dto.WebtoonDto;
+import com.yo.webtoon.model.dto.WebtoonIndexDto;
 import com.yo.webtoon.service.WebtoonService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -87,4 +93,14 @@ public class WebtoonController {
         return ResponseEntity.ok(SuccessResponse.toSuccessResponse(SuccessCode.UPDATE_WEBTOON));
     }
 
+    /**
+     * 웹툰을 조건에 따라 분류 및 정렬하여 조회한다. order(정렬 조건): Order, complete(완결여부): boolean, genre(장르):Genre
+     */
+    @GetMapping
+    public ResponseEntity<List<WebtoonIndexDto>> getWebtoon(
+        @ModelAttribute GetWebtoonParams webtoonParams,
+        Pageable pageable) {
+
+        return ResponseEntity.ok(webtoonService.getWebtoon(webtoonParams, pageable));
+    }
 }

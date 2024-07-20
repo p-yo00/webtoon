@@ -2,6 +2,7 @@ package com.yo.webtoon.service;
 
 import com.yo.webtoon.exception.WebtoonException;
 import com.yo.webtoon.model.constant.ErrorCode;
+import com.yo.webtoon.model.dto.GetWebtoonParams;
 import com.yo.webtoon.model.dto.WebtoonDto.Create;
 import com.yo.webtoon.model.dto.WebtoonDto.EditConfig;
 import com.yo.webtoon.model.dto.WebtoonDto.EditInfo;
@@ -12,8 +13,10 @@ import com.yo.webtoon.model.entity.WebtoonRedis;
 import com.yo.webtoon.repository.UserRepository;
 import com.yo.webtoon.repository.WebtoonRedisRepository;
 import com.yo.webtoon.repository.WebtoonRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -140,5 +143,14 @@ public class WebtoonService {
 
         log.info(String.format("[%s: %s] 웹툰의 공개 상태가 %b로 변경되었습니다.",
             webtoonEntity.getId(), webtoonEntity.getTitle(), webtoonEntity.isPublic()));
+    }
+
+    /**
+     * 웹툰을 [완결여부]와 [장르별]로 '분류'하고 [인기순], [실시간인기순], [최신업로드순], [찜많은순]으로 '정렬'하여 조회할 수 있다.
+     */
+    public List<WebtoonIndexDto> getWebtoon(GetWebtoonParams webtoonParams, Pageable pageable) {
+        return webtoonParams.getOrder().search(
+            webtoonRepository, webtoonParams.getGenre(), webtoonParams.isComplete(), pageable
+        );
     }
 }

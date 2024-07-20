@@ -5,6 +5,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -35,10 +36,11 @@ public class SecurityConfig implements WebMvcConfigurer {
             .sessionManagement((sm) ->
                 sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests((auth) -> auth.requestMatchers(
-                    // 회원가입, 로그인, 검색은 권한 없이 요청이 가능합니다.
+                    // 회원가입, 로그인, 검색, 웹툰 조회는 권한 없이 요청이 가능합니다.
                     antMatcher("/user/sign-up/**"),
                     antMatcher("/user/login/**"),
-                    antMatcher("/search/**")).permitAll()
+                    antMatcher("/search/**"),
+                    antMatcher(HttpMethod.GET, "/webtoon")).permitAll()
                 .anyRequest().authenticated())
             .exceptionHandling(e -> {
                 e.accessDeniedHandler(accessDeniedHandler);
