@@ -25,7 +25,7 @@ public class AsyncService {
     public void asyncUpdateWebtoonView(WebtoonRedis webtoonRedis, int curHour) {
         Map<Integer, Long> hourlyRecentViewMap = webtoonRedis.getHourlyRecentViews();
         Long dailyView = 0L;
-        Long before1HourView = hourlyRecentViewMap.get(curHour - 1);
+        int before1Hour = (curHour - 1) < 0 ? 23 : curHour - 1;
 
         for (Long view : hourlyRecentViewMap.values()) {
             dailyView += view;
@@ -35,8 +35,8 @@ public class AsyncService {
 
         if (webtoonEntity.isPresent()) {
             webtoonEntity.get().setRecentViewCnt(dailyView);
-            webtoonEntity.get()
-                .setTotalViewCnt(webtoonEntity.get().getTotalViewCnt() + before1HourView);
+            webtoonEntity.get().setTotalViewCnt(
+                webtoonEntity.get().getTotalViewCnt() + hourlyRecentViewMap.get(before1Hour));
         } else { // 실제 테이블에 없지만 redis에 있다면 redis에서 삭제해준다.
             webtoonRedisRepository.deleteById(webtoonRedis.getId());
         }
