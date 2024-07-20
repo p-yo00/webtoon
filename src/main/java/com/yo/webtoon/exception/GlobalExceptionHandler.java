@@ -3,6 +3,7 @@ package com.yo.webtoon.exception;
 import com.yo.webtoon.model.constant.ErrorCode;
 import com.yo.webtoon.model.dto.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -34,6 +35,17 @@ public class GlobalExceptionHandler {
                 .errorCode(ErrorCode.NOT_VALID_INPUT)
                 .message(bindingResult.getFieldErrors().get(0).getDefaultMessage())
                 .build());
+    }
+
+    // 데이터 무결성 위반 시 예외 처리
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
+        DataIntegrityViolationException e) {
+        log.error("DataIntegrityViolationException: ", e);
+
+        return ResponseEntity
+            .status(ErrorCode.DATA_INTEGRITY_VIOLATION.getHttpStatus())
+            .body(ErrorResponse.toErrorResponse(ErrorCode.DATA_INTEGRITY_VIOLATION));
     }
 
     // 예상치 못 한 RuntimeException 발생 시 예외 처리
