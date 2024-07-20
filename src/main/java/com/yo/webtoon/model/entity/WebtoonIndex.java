@@ -20,6 +20,7 @@ import org.springframework.data.elasticsearch.core.suggest.Completion;
 @NoArgsConstructor
 @Document(indexName = "webtoon_summary")
 public class WebtoonIndex {
+
     @Id
     private Long id;
     private String title;

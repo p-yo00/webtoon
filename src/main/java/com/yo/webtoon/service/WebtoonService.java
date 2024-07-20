@@ -76,7 +76,8 @@ public class WebtoonService {
         webtoonEntity.setDonationAlarm(updateDto.isDonationAlarm());
 
         // 도큐먼트 수정은 삭제 후 다시 생성해야하므로 키워드가 기존 값에서 바뀐 경우에만 한다.
-        if (webtoonEntity.isPublic() && !updateDto.getKeyword().equals(webtoonEntity.getKeyword())) {
+        if (webtoonEntity.isPublic() && !updateDto.getKeyword()
+            .equals(webtoonEntity.getKeyword())) {
             elasticsearchService.saveToWebtoonIndex(
                 new WebtoonIndexDto(webtoonEntity, loginUser.getUserName()));
         }
