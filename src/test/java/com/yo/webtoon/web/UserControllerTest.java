@@ -135,7 +135,7 @@ class UserControllerTest {
     @DisplayName("회원 조회 - 성공")
     @WithMockUser
     void getUser_SUCCESSS() throws Exception {
-        given(userService.getUser("1"))
+        given(userService.getUser(1L))
             .willReturn(UserDto.Get.builder()
                 .userId("1")
                 .point(100)
@@ -144,7 +144,7 @@ class UserControllerTest {
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/user")
                 .with(csrf())
-                .requestAttr("userId", "1"))
+                .requestAttr("userId", 1L))
             .andExpect(status().isOk())
             .andReturn();
 

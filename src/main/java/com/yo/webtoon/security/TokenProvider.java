@@ -1,5 +1,6 @@
 package com.yo.webtoon.security;
 
+import com.yo.webtoon.model.dto.AuthenticationAndId;
 import com.yo.webtoon.model.dto.UserDetail;
 import com.yo.webtoon.service.UserService;
 import io.jsonwebtoken.Claims;
@@ -9,7 +10,6 @@ import java.util.Optional;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -36,10 +36,12 @@ public class TokenProvider {
     /**
      * 토큰에서 Authentication 객체를 리턴한다.
      */
-    public Optional<Authentication> getAuthentication(String token) {
+    public Optional<AuthenticationAndId> getAuthentication(String token) {
         UserDetail user = userService.loadUserByUsername(parseClaims(token).getSubject());
         return user.isEnabled() ?
-            Optional.of(new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities()))
+            Optional.of(new AuthenticationAndId(
+                new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities()),
+                user.getId()))
             : Optional.empty();
     }
 

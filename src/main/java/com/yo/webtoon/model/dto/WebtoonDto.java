@@ -1,5 +1,8 @@
 package com.yo.webtoon.model.dto;
 
+import com.yo.webtoon.model.constant.Genre;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -18,20 +21,47 @@ public class WebtoonDto {
     @NoArgsConstructor
     public static class Create {
 
-        private String userId;
+        private Long userId;
         @NotBlank(message = "웹툰 제목을 입력해주세요.")
         private String title;
         private String description;
         private List<String> keyword;
         private MultipartFile img;
         private String imgUrl;
-        @NotBlank(message = "장르를 선택해주세요.")
-        private String genre;
-        @NotBlank(message = "연령제한을 선택해주세요.")
+        @Enumerated(value = EnumType.STRING)
+        private Genre genre;
         private boolean ageLimit;
-        @NotBlank(message = "업로드 주기를 선택해주세요.")
         private int uploadCycle;
-        @NotBlank(message = "알람을 설정해주세요.")
-        boolean donationAlarm;
+        private boolean donationAlarm;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EditInfo {
+
+        private Long userId;
+        private Long webtoonId;
+        private String description;
+        private List<String> keyword;
+        private MultipartFile img;
+        private int uploadCycle;
+        private boolean donationAlarm;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EditConfig {
+
+        private Long webtoonId;
+        private String title;
+        @Enumerated(value = EnumType.STRING)
+        private Genre genre;
+        private boolean ageLimit;
     }
 }

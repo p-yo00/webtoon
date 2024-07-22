@@ -1,9 +1,12 @@
 package com.yo.webtoon.model.entity;
 
+import com.yo.webtoon.model.constant.Genre;
 import com.yo.webtoon.model.dto.WebtoonDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,12 +43,15 @@ public class WebtoonEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     private List<String> keyword;
     private String imgUrl;
-    private String genre;
+    @Enumerated(value = EnumType.STRING)
+    private Genre genre;
     private boolean hasAgeLimit;
     private int uploadCycle;
     private boolean donationAlarm;
     @Builder.Default
-    private Long viewCnt = 0L;
+    private Long totalViewCnt = 0L;
+    @Builder.Default
+    private Long recentViewCnt = 0L;
     @Builder.Default
     private boolean isPublic = false;
     @Builder.Default
@@ -53,9 +59,9 @@ public class WebtoonEntity {
     @CreatedDate
     private LocalDateTime createDatetime;
 
-    public static WebtoonEntity toEntity(WebtoonDto.Create webtoonDto, Long userId) {
+    public static WebtoonEntity toEntity(WebtoonDto.Create webtoonDto) {
         return WebtoonEntity.builder()
-            .authorId(userId)
+            .authorId(webtoonDto.getUserId())
             .title(webtoonDto.getTitle())
             .description(webtoonDto.getDescription())
             .keyword(webtoonDto.getKeyword())

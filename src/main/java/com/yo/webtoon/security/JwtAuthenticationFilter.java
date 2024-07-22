@@ -2,13 +2,13 @@ package com.yo.webtoon.security;
 
 import com.yo.webtoon.exception.WebtoonException;
 import com.yo.webtoon.model.constant.ErrorCode;
+import com.yo.webtoon.model.dto.AuthenticationAndId;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -28,13 +28,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
 
         if (tokenProvider.validateToken(token)) {
-            Authentication auth = tokenProvider.getAuthentication(token)
+            AuthenticationAndId auth = tokenProvider.getAuthentication(token)
                 .orElseThrow(
                     () -> new WebtoonException(ErrorCode.USER_NOT_FOUND));
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            SecurityContextHolder.getContext().setAuthentication(auth.getAuthentication());
 
             // 어노테이션 권한 인증을 위해 ID를 저장
-            request.setAttribute("userId", auth.getName());
+            request.setAttribute("userId", auth.getUserId());
         }
 
         filterChain.doFilter(request, response);
