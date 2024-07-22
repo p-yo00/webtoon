@@ -19,7 +19,8 @@ public enum ErrorCode {
     WEBTOON_NOT_FOUND("일치하는 웹툰을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
     MUST_HAVE_1_EPISODE_TO_OPEN("공개하려면 적어도 하나의 에피소드가 등록되어야 합니다.", HttpStatus.BAD_REQUEST),
     EPISODE_NOT_FOUND("해당하는 에피소드를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
-    DATA_INTEGRITY_VIOLATION("데이터 무결성이 위반되었습니다.", HttpStatus.BAD_REQUEST);
+    DATA_INTEGRITY_VIOLATION("데이터 무결성이 위반되었습니다.", HttpStatus.BAD_REQUEST),
+    COMMENT_NOT_FOUND("해당하는 댓글을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);
 
     private final String message;
     private final HttpStatus httpStatus;
