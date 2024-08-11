@@ -3,6 +3,7 @@ package com.yo.webtoon.web;
 import com.yo.webtoon.model.dto.SuggestResponse.Response;
 import com.yo.webtoon.model.dto.WebtoonIndexDto;
 import com.yo.webtoon.service.ElasticsearchService;
+import com.yo.webtoon.service.WebtoonService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SearchController {
 
     private final ElasticsearchService elasticsearchService;
+    private final WebtoonService webtoonService;
 
     /**
      * 텍스트 입력 시, 웹툰의 제목/작성자/키워드가 자동완성으로 제공된다.
@@ -36,5 +38,10 @@ public class SearchController {
         return ResponseEntity.ok(
             elasticsearchService.findByKeyword(keyword)
         );
+    }
+
+    @GetMapping("/test")
+    public void test() {
+        webtoonService.updateWebtoonView();
     }
 }
